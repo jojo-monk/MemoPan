@@ -28,7 +28,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 0.5,
                 .FMEnvAmount = 0.5,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.0
+                .lpfOctaveControl = 0.3
             }
         },
         .effects = {
@@ -86,7 +86,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 2.0,
                 .FMEnvAmount = 1.5,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 3.0
+                .lpfOctaveControl = 0.3
             }
         },
         .effects = {
@@ -145,7 +145,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.0,
                 .FMEnvAmount = 0.2,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.5
+                .lpfOctaveControl = 0.4
             }
         },
         .effects = {
@@ -204,7 +204,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.5,
                 .FMEnvAmount = 2.5,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.0
+                .lpfOctaveControl = 0.3
             }
         },
         .effects = {
@@ -263,7 +263,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 3.0,
                 .FMEnvAmount = 0.0,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 4.0
+                .lpfOctaveControl = 0.5
             }
         },
         .effects = {
@@ -322,7 +322,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.5,
                 .FMEnvAmount = 1.0,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.5
+                .lpfOctaveControl = 0.5
             }
         },
         .effects = {
@@ -380,7 +380,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.0,
                 .FMEnvAmount = 0.2,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.0
+                .lpfOctaveControl = 0.0
             }
         },
         .effects = {
@@ -438,7 +438,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.5,
                 .FMEnvAmount = 1.0,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.5
+                .lpfOctaveControl = 0.5
             }
         },
         .effects = {
@@ -498,7 +498,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.5,
                 .FMEnvAmount = 1.0,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.5
+                .lpfOctaveControl = 0.5
             }
         },
         .effects = {
@@ -558,7 +558,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 0.0,
                 .FMEnvAmount = 0.0,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.0
+                .lpfOctaveControl = 0.0
             }
         },
         .effects = {
@@ -617,7 +617,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.0,
                 .FMEnvAmount = 0.3,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.0
+                .lpfOctaveControl = 0.0
             }
         },
         .effects = {
@@ -678,7 +678,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 0.5,
                 .FMEnvAmount = 0.5,
                 .FMWaveform = WAVEFORM_SQUARE,
-                .lpfOctaveControl = 2.0
+                .lpfOctaveControl = 0.0
             }
         },
         .effects = {
@@ -736,7 +736,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 2.0,
                 .FMEnvAmount = 1.5,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 3.0
+                .lpfOctaveControl = 0.0
             }
         },
         .effects = {
@@ -794,7 +794,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.5,
                 .FMEnvAmount = 1.0,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.0
+                .lpfOctaveControl = 0.0
             }
             },
             .effects = {
@@ -852,7 +852,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
                 .lpfEnvAmount = 1.5,
                 .FMEnvAmount = 0.5,
                 .FMWaveform = WAVEFORM_SINE,
-                .lpfOctaveControl = 2.0
+                .lpfOctaveControl = 0.0
             }
             },
             .effects = {
@@ -910,7 +910,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 3.0,
         .FMEnvAmount = 2.0,
         .FMWaveform = WAVEFORM_SINE,
-        .lpfOctaveControl = 4.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -968,7 +968,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 2.0,
         .FMEnvAmount = 1.5,
         .FMWaveform = WAVEFORM_SAWTOOTH,
-        .lpfOctaveControl = 3.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1142,7 +1142,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 1.0,
         .FMEnvAmount = 0.0,
         .FMWaveform = WAVEFORM_SQUARE,
-        .lpfOctaveControl = 2.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1200,7 +1200,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 1.0,
         .FMEnvAmount = 0.5,
         .FMWaveform = WAVEFORM_SINE,
-        .lpfOctaveControl = 2.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1258,7 +1258,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 2.0,
         .FMEnvAmount = 2.0,
         .FMWaveform = WAVEFORM_SQUARE,
-        .lpfOctaveControl = 3.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1317,7 +1317,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 1.0,
         .FMEnvAmount = 0.0,
         .FMWaveform = WAVEFORM_SQUARE,
-        .lpfOctaveControl = 2.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1375,7 +1375,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 4.0,
         .FMEnvAmount = 0.0,
         .FMWaveform = WAVEFORM_SAWTOOTH,
-        .lpfOctaveControl = 5.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1434,7 +1434,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 1.0,
         .FMEnvAmount = 1.0,
         .FMWaveform = WAVEFORM_SINE,
-        .lpfOctaveControl = 2.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1492,7 +1492,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 2.0,
         .FMEnvAmount = 0.5,
         .FMWaveform = WAVEFORM_SINE,
-        .lpfOctaveControl = 2.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1550,7 +1550,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 3.0,
         .FMEnvAmount = 0.0,
         .FMWaveform = WAVEFORM_SQUARE,
-        .lpfOctaveControl = 4.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1608,7 +1608,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
         .lpfEnvAmount = 3.0,
         .FMEnvAmount = 1.0,
         .FMWaveform = WAVEFORM_SAWTOOTH,
-        .lpfOctaveControl = 4.0
+        .lpfOctaveControl = 0.0
     }
     },
     .effects = {
@@ -1666,7 +1666,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
             .lpfEnvAmount = 2.0,
             .FMEnvAmount = 0.3,
             .FMWaveform = WAVEFORM_SINE,
-            .lpfOctaveControl = 2.0
+            .lpfOctaveControl = 0.0
         }
         },
         .effects = {

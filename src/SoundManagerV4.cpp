@@ -221,7 +221,6 @@ void SoundManager::loadPresetNamesFromStorage() {
 
         } else {
             Serial.println("pas de sauvegarde");
-            // Nom par défaut (depuis ton tableau son[])
             // strncpy(presetNames[i], son[i], MAX_PRESET_NAME_LEN - 1);
             // presetNames[i][MAX_PRESET_NAME_LEN - 1] = '\0';
 
