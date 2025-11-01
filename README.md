@@ -8,7 +8,7 @@ Ce projet combine un **jeu de mémoire musicale** et un **handpan électronique 
 ## 🎛️ Fonctions principales
 
 ### 🧠 Mode Simon (jeu de mémoire)
-- Jusqu’à **4 joueurs**
+- Jusqu’à **10 joueurs**
 - **4 niveaux de difficulté** :
   - 🟢 *Facile* → 5 notes  
   - 🟡 *Moyen* → 7 notes  
