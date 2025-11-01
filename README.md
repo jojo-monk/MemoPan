@@ -1,7 +1,7 @@
 <!-- Mascotte à gauche -->
-# MemoPan
-<img src="Gaston-Handpan.jpg" alt="Mascotte MemoPan" style="width:100px; float:left; margin-right:10px;" /> 
 
+<img src="Gaston-Handpan.jpg" alt="Mascotte MemoPan" style="width:100px; float:left; margin-right:10px;" /> 
+# MemoPan
 
 
 <p align="center">
