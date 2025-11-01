@@ -4,7 +4,7 @@
 
 **MemoPan** est un instrument hybride **handpan / jeu Simon électronique**, basé sur un **Teensy 4.0**.  
 Ce projet combine un **jeu de mémoire musicale** et un **handpan électronique polyphonique**, avec synthèse FM, effets et échantillons percussifs.
-
+<img src="MemoPan.jpeg" alt="photo MemoPan" style="width:100px; float:center;" />
 ---
 
 ## 🎛️ Fonctions principales
