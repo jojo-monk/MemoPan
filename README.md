@@ -1,6 +1,6 @@
 
 
-# MemoPan <img src="Gaston-Handpan.jpg" alt="Mascotte MemoPan "width="200" align="left"/>
+# MemoPan 
 <img src="Gaston-Handpan.jpg" alt="Mascotte MemoPan" style="width:200px; float:left;" />
 
 **MemoPan** est un instrument hybride **handpan / jeu Simon électronique**, basé sur un **Teensy 4.0**.  
