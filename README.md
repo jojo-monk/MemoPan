@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="gaston-handpan.jpg" alt="Mascotte MemoPan" width="200"/>
+  <img src="gaston-handpan.jpg" width="200"/>
 </p>
 
 # 🪘 MemoPan
