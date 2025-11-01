@@ -1,4 +1,4 @@
-<img src="Gaston-Handpan.jpg" alt="Mascotte MemoPan" style="width:200px; float:left;" />
+<img src="Gaston-Handpan.jpg" alt="Mascotte MemoPan" style="width:40px; float:left;" />
 
 # MemoPan
 
