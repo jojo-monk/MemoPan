@@ -17,14 +17,13 @@ uint8_t highScoreValue = 0;
 uint8_t drywet = 3;
 uint8_t tremo = 3;
 uint8_t chor = 3;
-uint8_t moog = 3;
+uint8_t noise = 3;
 bool arpegOn = false;
 uint8_t tempo = 120;
 uint16_t modeArp_id = 0;
 uint16_t stepInterval_id = 3;
 uint8_t batteryLevel = 75;  // exemple, de 0 à 100
 int8_t octave = 0;  // Transposition d'octave, -2 à +2
-//String highScoreStr = String(highScoreValue);
 char highScoreStr[6];  // buffer pour le score (max 3 chiffres + '\0')
 const int8_t octaveMin = -2; // Limite basse de la transposition d'octave
 const int8_t octaveMax = 2;  // Limite haute de la transposition d'octave
@@ -82,13 +81,7 @@ const char* son_name_list_get_str(void*, uint16_t index) {
     Serial.println("presetName par défaut (son[])");
     return son[index];
 }
-// uint16_t son_name_list_get_cnt(void*) { return sizeof(son)/sizeof(*son); }
-// const char* son_name_list_get_str(void*, uint16_t index) { 
-//   if (presetNamesLoaded && index < NUM_PRESETS) {
-//         // Retourner le nom dynamique
-//         return presetNames[index].c_str();
-//   }
-//   return son[index]; }
+
 
 uint16_t gamme_name_list_get_cnt(void*) { return sizeof(gamme)/sizeof(*gamme); }
 const char* gamme_name_list_get_str(void*, uint16_t index) { return gamme[index]; }
@@ -152,9 +145,6 @@ uint8_t save_button_cb(mui_t *ui, uint8_t msg) {
   return 0;
 }
 
-
-
-
 void handleMenuSelection() {
   uint8_t currentForm = mui.getCurrentFormId();
   uint8_t currentField = mui.getCurrentCursorFocusPosition();
@@ -171,8 +161,7 @@ void updateHighScoreStr() {
 
 uint8_t mui_highscore_display(mui_t *ui, uint8_t msg) {
   if (msg == MUIF_MSG_DRAW) {
-    //updateHighScoreStr();  // Met à jour la chaîne
-    u8g2.setFont(u8g2_font_helvR08_tr);  // ou la police que vous voulez
+    u8g2.setFont(u8g2_font_helvR08_tr);
     u8g2.drawStr(mui_get_x(ui), mui_get_y(ui), highScoreStr);
   }
   return 0;
@@ -181,8 +170,6 @@ uint8_t mui_highscore_display(mui_t *ui, uint8_t msg) {
 // === Widgets ===
 muif_t muif_list[] = {
   MUIF_U8G2_FONT_STYLE(0, u8g2_font_streamline_interface_essential_other_t),
-
-  //MUIF_U8G2_FONT_STYLE(1, u8g2_font_helvB08_tr),
   MUIF_U8G2_FONT_STYLE(2, u8g2_font_streamline_entertainment_events_hobbies_t),
   MUIF_U8G2_FONT_STYLE(3, u8g2_font_streamline_music_audio_t),
   MUIF_U8G2_FONT_STYLE(4, u8g2_font_streamline_computers_devices_electronics_t),
@@ -191,19 +178,14 @@ muif_t muif_list[] = {
   MUIF_U8G2_FONT_STYLE(7, u8g2_font_streamline_interface_essential_loading_t),
   MUIF_U8G2_FONT_STYLE(8, u8g2_font_helvR08_tr),
   MUIF_U8G2_FONT_STYLE(9, u8g2_font_prospero_bold_nbp_tr),
-  //MUIF_U8G2_FONT_STYLE(9, u8g2_font_HelvetiPixelOutline_tr),
   MUIF_U8G2_FONT_STYLE(1, u8g2_font_siji_t_6x10),
   MUIF_U8G2_LABEL(),
   MUIF_RO("HR", mui_hrule),
   MUIF_RO("HS", mui_highscore_display),
   MUIF_RO("BT", mui_battery_display),
-  //MUIF_RO("FM", mui_form_monitor),
   MUIF_RO("GP",mui_u8g2_goto_data),
   MUIF_RO("AS", arpeg_smart_label),
   MUIF_VARIABLE("ST", NULL, mui_u8g2_btn_exit_wm_fi),
-  //MUIF_VARIABLE("ID",&variable,mui_u8g2_u8_opt_line_wa_mud_pi)
-  //MUIF_RO("ST", startGame),
-  //MUIF_BUTTON("ST", start_button_cb),
   MUIF_BUTTON("JE", mui_u8g2_btn_goto_wm_fi),
   MUIF_BUTTON("SY", mui_u8g2_btn_goto_wm_fi),
   MUIF_BUTTON("AG", mui_u8g2_btn_goto_wm_fi),
@@ -212,7 +194,6 @@ muif_t muif_list[] = {
   MUIF_U8G2_U8_MIN_MAX("NV", &num_joueur, 1, 10, mui_u8g2_u8_min_max_wm_mud_pi),
   MUIF_U8G2_U8_MIN_MAX("LI", &lumiere, 0, 100, mui_u8g2_u8_min_max_wm_mud_pi),
   MUIF_U8G2_S8_MIN_MAX("OC", &octave, octaveMin, octaveMax, mui_u8g2_s8_min_max_wm_mud_pi),
-  //MUIF_U8G2_U8_MIN_MAX_STEP_WIDTH("LI", &lumiere, 0, 100, 1, 30, MUI_MMS_2X_BAR|MUI_MMS_SHOW_VALUE, mui_u8g2_u8_bar_wm_mud_pi),
   MUIF_U8G2_U16_LIST("DA", &difficult_id, NULL, difficult_name_list_get_str, difficult_name_list_get_cnt, mui_u8g2_u16_list_line_wa_mud_pi),
   MUIF_U8G2_U16_LIST("SA", &son_id, NULL, son_name_list_get_str, son_name_list_get_cnt, mui_u8g2_u16_list_line_wa_mud_pi),
   MUIF_U8G2_U16_LIST("GA", &gamme_id, NULL, gamme_name_list_get_str, gamme_name_list_get_cnt, mui_u8g2_u16_list_line_wa_mud_pi),
@@ -225,7 +206,7 @@ muif_t muif_list[] = {
   MUIF_U8G2_U8_MIN_MAX_STEP("RV", &drywet, 0, 10, 1, MUI_MMS_2X_BAR|MUI_MMS_NO_WRAP|MUI_MMS_SHOW_VALUE, mui_u8g2_u8_bar_wm_mud_pi),
   MUIF_U8G2_U8_MIN_MAX_STEP("TR", &tremo, 0, 10, 1, MUI_MMS_2X_BAR|MUI_MMS_NO_WRAP|MUI_MMS_SHOW_VALUE, mui_u8g2_u8_bar_wm_mud_pi),
   MUIF_U8G2_U8_MIN_MAX_STEP("FL", &chor, 0, 10, 1, MUI_MMS_2X_BAR|MUI_MMS_NO_WRAP|MUI_MMS_SHOW_VALUE, mui_u8g2_u8_bar_wm_mud_pi),
-  MUIF_U8G2_U8_MIN_MAX_STEP("MO", &moog, 0, 10, 1, MUI_MMS_2X_BAR|MUI_MMS_NO_WRAP|MUI_MMS_SHOW_VALUE, mui_u8g2_u8_bar_wm_mud_pi),
+  MUIF_U8G2_U8_MIN_MAX_STEP("NO", &noise, 0, 10, 1, MUI_MMS_2X_BAR|MUI_MMS_NO_WRAP|MUI_MMS_SHOW_VALUE, mui_u8g2_u8_bar_wm_mud_pi),
 
   MUIF_VARIABLE("AR",&arpegOn,mui_u8g2_u8_chkbox_wm_pi),
   MUIF_U8G2_U8_MIN_MAX("TP", &tempo, 60, 200, mui_u8g2_u8_min_max_wm_mud_pi),
@@ -237,52 +218,39 @@ muif_t muif_list[] = {
   
 };
 
-//MUIF_BUTTON("ST", start_button_cb),
-//MUIF_BUTTON("EX", exit_button_cb),
 
 
 // === Pages / Forms ===
 fds_t fds_data[] =
 MUI_FORM(1)
-//MUI_STYLE(0)
-//MUI_LABEL(10, 20, "TEST")
-MUI_STYLE(2)                   // font icône
-MUI_LABEL(10,35,"\x39")         // icône 🎲 
+MUI_STYLE(2)                   
+MUI_LABEL(10,35,"\x39")         
 MUI_STYLE(3)
-MUI_LABEL(50,35,"\x31")        // icône 🎹 
+MUI_LABEL(50,35,"\x31")        
 MUI_STYLE(7)
-MUI_LABEL(90,35,"\x3b")        // icône
+MUI_LABEL(90,35,"\x3b")        
 MUI_STYLE(5)
-MUI_LABEL(25,95,"\x35")         // icône 🎛 
+MUI_LABEL(25,95,"\x35")         
 MUI_STYLE(6)
-MUI_LABEL(80,95,"\x33")        // icône ⚙
+MUI_LABEL(80,95,"\x33")       
 MUI_XY("BT", 110, 10)
-// MUI_STYLE(1)
-// MUI_LABEL(110,120,"\xee\x89\x82")
-//MUI_STYLE(1)
-//MUI_LABEL(20, 30, "Jeu")
 MUI_XYAT("JE",20,51,10, "Jeu")
 MUI_XYAT("SY",60,51,12, "Synth")
 MUI_XYAT("AG",100,51,17, "Arpege")
 MUI_XYAT("FX",35,111,15, "Effets")
 MUI_XYAT("RE",90,111,14, "Reglages")
-//MUI_LABEL(38,71,"Reglages")    // texte sous l'icône
-
 
 MUI_FORM(10)
-MUI_STYLE(2)                   // font icône
+MUI_STYLE(2)                   
 MUI_LABEL(6,21,"\x39")
 MUI_STYLE(9)
 MUI_LABEL(30, 21, "Jeu")
 MUI_XY("HR", 0,24)
 MUI_XY("BT", 110, 10)
-//MUI_XY("FM", 0, 0)
 MUI_STYLE(8)
 MUI_LABEL(10,60, "nb joueurs: ")
-//MUI_LABEL(5,36, "Bar:")
 MUI_LABEL(10,80, "Difficulte: ")
 MUI_XY("NV", 70, 60)
-//MUI_XY("NB", 50, 36)
 MUI_XYA("DA", 65, 80, 44)
 MUI_XYAT("EX", 20, 110, 1, "Retour")
 MUI_XYAT("HI", 68, 110, 20, "Record")
@@ -296,7 +264,6 @@ MUI_STYLE(9)
 MUI_LABEL(30, 21, "Synthe")
 MUI_XY("HR", 0,24)
 MUI_XY("BT", 110, 10)
-//MUI_XY("FM", 0, 0)
 MUI_STYLE(8)
 MUI_LABEL(5,35,"Son:")
 MUI_LABEL(5,50,"Gamme:")
@@ -304,16 +271,13 @@ MUI_LABEL(5,65,"Note:")
 MUI_LABEL(5,80,"Clavier:")
 MUI_LABEL(5,95,"Octave:")
 
-//MUI_LABEL(5,55,"← Retour")
 MUI_XYA("SA",60,35,40)
 MUI_XYA("GA",60,50,40)
 MUI_XYA("NA",60,65,40)
 MUI_XYA("CL",60,80,40)
 MUI_XYA("OC",60,95,40)
 
-//MUI_XYAT("OK", 114, 60, 1, " Ok ") 
 MUI_XYAT("EX", 20, 110, 1, "Retour") 
-//MUI_XYA("GC",5,55,3)
 
 MUI_FORM(14)
 MUI_STYLE(6)
@@ -322,20 +286,15 @@ MUI_STYLE(9)
 MUI_LABEL(30,21,"Reglages")
 MUI_XY("HR", 0,24)
 MUI_XY("BT", 110, 10)
-//MUI_XY("FM", 0, 0)
 MUI_STYLE(8)
 MUI_LABEL(10,50,"Vitesse:")
 MUI_LABEL(10,65,"Lumiere:")
 MUI_LABEL(10,80,"Volume:")
-//MUI_LABEL(5,62," Retour ")
 MUI_XY("VI",60,50)
 MUI_XY("LI",60,65)
 MUI_XY("VO",60,80)
-//MUI_XYAT("OK", 110, 110, 1, "Ok")
 MUI_XYAT("EX", 20, 110, 1, "Retour")
 MUI_XYAT("SV", 110, 110, 18, "Save")
- 
-//MUI_XYA("GC",5,50,2)
 
 MUI_FORM(15)
 MUI_STYLE(5)
@@ -344,28 +303,22 @@ MUI_STYLE(9)
 MUI_LABEL(30,21,"Effets")
 MUI_XY("HR", 0, 24)
 MUI_XY("BT", 110, 10)
-//MUI_XY("FM", 0, 0)
 MUI_STYLE(8)
 MUI_LABEL(10,40,"Reverb:")
 MUI_LABEL(10,55,"Tremolo:")
 MUI_LABEL(10,70,"Chorus:")
-MUI_LABEL(10,85,"Filtre:")
-//MUI_LABEL(5,62," Retour ")
+MUI_LABEL(10,85,"Noise:")
 MUI_XY("RV",60,40)
 MUI_XY("TR",60,55)
 MUI_XY("FL",60,70)
-MUI_XY("MO",60,85)
-//MUI_XYAT("OK", 110, 110, 1, "Ok")
-//MUI_XYAT("SV", 72, 60, 18, " Save ")
+MUI_XY("NO",60,85)
 MUI_XYAT("EX", 20, 110, 1, "Retour") 
-//MUI_XYA("GC",5,50,2)
 
 MUI_FORM(16)
 MUI_STYLE(1)
 MUI_LABEL(5,10,"MEMO-PAN")
 MUI_XY("HR",0,11)
 MUI_XY("BT", 110, 10)
-//MUI_XY("FM", 0, 0)
 MUI_STYLE(8)
 MUI_LABEL(5,25,"Joueur:")
 MUI_LABEL(5,35,"Score:")
@@ -377,22 +330,16 @@ MUI_STYLE(9)
 MUI_LABEL(30, 21, "Arpegiateur")
 MUI_XY("HR", 0,24)
 MUI_XY("BT", 110, 10)
-//MUI_XY("FM", 0, 0)
-//MUI_STYLE(0)
-//MUI_LABEL(5,21, "\x41")  // Texte fixe
-MUI_XY("AR",60, 40)          // Checkbox
+MUI_XY("AR",60, 40)          
 MUI_XY("AS",10, 40)
 MUI_STYLE(8)
 MUI_LABEL(10,65,"Mode:")
 MUI_LABEL(10,80,"Intervalle:")
 MUI_LABEL(10,95,"Tempo:")
-//MUI_XY("AR",60, 21)
-//MUI_AUX("AS")
 MUI_XY("MA",60, 65)
 MUI_XY("SI",60, 80)
 MUI_XY("TP",60, 95)
 MUI_XYAT("EX", 20, 110, 1, "Retour")
-//MUI_XYAT("OK", 110, 110, 1, " Ok ")
 
 MUI_FORM(18)
 MUI_STYLE(6)
@@ -401,19 +348,16 @@ MUI_STYLE(9)
 MUI_LABEL(30,21,"MEMO-PAN")
 MUI_XY("HR",0,24)
 MUI_XY("BT", 110, 10)
-//MUI_XY("FM", 0, 0)
 MUI_STYLE(8)
 MUI_LABEL(5,65,"Sauvegarde en cours...")
-//MUI_LABEL(5,35,"Score:")
 
 MUI_FORM(20)
-MUI_STYLE(2)                   // font icône
+MUI_STYLE(2)                  
 MUI_LABEL(6,21,"\x39")
 MUI_STYLE(9)
 MUI_LABEL(30,21,"MEMO-PAN")
 MUI_XY("HR",0,24)
 MUI_XY("BT", 110, 10)
-//MUI_XY("FM", 0, 0)
 MUI_STYLE(9)
 MUI_LABEL(40,60,"HIGHSCORE")
 MUI_XY("HS", 60, 80)
@@ -514,12 +458,8 @@ uint8_t arpeg_smart_label(mui_t *ui, uint8_t msg) {
                 
                 DEBUG_INFO_UI("Drawing arpeg label");
                 
-                // UTILISER LES COORDONNÉES DE MUI (60, 21) au lieu de (5, 21)
-                //u8g2_SetDrawColor(u8g2, 0);
-                //u8g2_DrawBox(u8g2, 60, 13, 80, 10); // Effacer à partir de x=60
                 
                 u8g2_SetDrawColor(u8g2, 1);
-                //u8g2_SetFont(u8g2, u8g2_font_helvR08_tr);
                 
                 if (arpegOn) {
                     DEBUG_INFO_UI("Arpeggiator ON");
@@ -636,8 +576,8 @@ uint8_t ui_getChorus() {
   return chor;
 }
 
-uint8_t ui_getMoogFilter() {
-  return moog;
+uint8_t ui_getNoise() {
+  return noise;
 }
 
 uint8_t ui_getHighScore() {
@@ -714,9 +654,9 @@ void ui_setChorus(uint8_t value) {
   }
 }
 
-void ui_setMoogFilter(uint8_t value) {
+void ui_setNoise(uint8_t value) {
   if (value <= 10) {
-    moog = value;
+    noise = value;
   }
 }
 

@@ -17,31 +17,9 @@ bool PresetStorage::begin() {
         Serial.println("✗ Échec initialisation LittleFS");
         return false;
     }
-    //myfs.lowLevelFormat();
-    //delay(2000);
-    //myfs.quickFormat();
-    // Créer le dossier presets s'il n'existe pas
-    // if (!myfs.exists("/presets")) {
-    //     myfs.mkdir("/presets");
-    // }
-    // if (!myfs.exists("/presets")) {
-    //     myfs.mkdir("/presets");
-    // }
     
     initialized = true;
     Serial.println("✓ myfs initialisé");
-    //Serial.println("✓ LittleFS initialisé");
-    //Serial.printf("Espace total: %u bytes, utilisé: %u bytes\n", myfs.totalBytes(), myfs.usedBytes());
-
-    // Afficher l'espace disponible
-    // FSInfo fs_info;
-    // myfs.info(fs_info);
-    // Serial.print("  Espace total: ");
-    // Serial.print(fs_info.totalBytes / 1024);
-    // Serial.println(" KB");
-    // Serial.print("  Espace utilisé: ");
-    // Serial.print(fs_info.usedBytes / 1024);
-    // Serial.println(" KB");
     
     return true;
 }
@@ -81,6 +59,7 @@ void PresetStorage::convertToFlash(const Preset& preset, PresetFlash& flash) {
     //memset(&flash, 0, sizeof(PresetFlash));
     
     flash.type = preset.sound.type;
+    flash.soundTypeIndex = preset.soundTypeIndex;
     
     // Copier presetName (sécurisé)
     if (preset.presetName != nullptr) {
@@ -484,56 +463,3 @@ bool PresetStorage::format() {
     Serial.println("✓ Formatage terminé");
     return true;
 }
-
-// // Exemple d'utilisation dans SoundManager.cpp
-// /*
-// #include "PresetStorage.h"
-
-// class SoundManager {
-// private:
-//     PresetStorage storage;
-//     Preset presetBank[NUM_PRESETS];
-//     Preset currentPreset;
-    
-// public:
-//     void begin() {
-//         // Initialiser le stockage Flash
-//         if (!storage.begin()) {
-//             Serial.println("✗ Échec initialisation stockage");
-//             return;
-//         }
-        
-//         // Charger les presets depuis la Flash
-//         Serial.println("Chargement des presets...");
-//         for (int i = 0; i < NUM_PRESETS; i++) {
-//             if (storage.presetExists(i)) {
-//                 if (storage.loadPreset(i, presetBank[i])) {
-//                     Serial.print("  Preset ");
-//                     Serial.print(i);
-//                     Serial.print(": ");
-//                     Serial.println(presetBank[i].presetName);
-//                 }
-//             } else {
-//                 // Utiliser le preset par défaut
-//                 presetBank[i] = DEFAULT_PRESETS[i];
-//             }
-//         }
-        
-//         // Lister les presets disponibles
-//         storage.listPresets();
-//     }
-    
-//     void handleSysExSave(int slot, const Preset& preset) {
-//         // Sauvegarder dans le tableau RAM
-//         if (slot < NUM_PRESETS) {
-//             presetBank[slot] = preset;
-//         }
-        
-//         // Sauvegarder dans la Flash
-//         if (storage.savePreset(slot, preset)) {
-//             Serial.println("✓ Preset sauvegardé en Flash");
-//         } else {
-//             Serial.println("✗ Échec sauvegarde Flash");
-//         }
-//     }
-// };

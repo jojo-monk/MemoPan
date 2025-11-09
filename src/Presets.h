@@ -11,5 +11,4 @@ extern const Preset DEFAULT_PRESETS[NUM_PRESETS];
 
 // Accès pratique
 const Preset& getPreset(int index);
-//void initPresets();
 #endif // PRESETS_H

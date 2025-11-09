@@ -37,6 +37,7 @@
 #define NUM_SOUND_MODES 32
 #define NUM_PRESETS 32
 #define MAX_PRESET_NAME_LEN 13
+#define NUM_WAVEFORMS 18
 
 // Configuration LEDs
 #define LED_BRIGHTNESS 65

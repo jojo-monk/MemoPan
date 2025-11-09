@@ -17,7 +17,7 @@ private:
     AudioEngine audioEngine;
     Preset presetBank[NUM_PRESETS];
     Preset currentPreset;
-    int currentSoundMode;
+    uint8_t currentSoundMode;
     unsigned long soundStartTime;
     SysExHandler* sysexHandler;
     PresetStorage storage;
@@ -41,17 +41,18 @@ private:
     float normLevel; // 0-1
     float normFreq; // 0-20000
     float normTime; // 0-1000
-    float ratioGlobal = 1.0f;         // contrôlé par potar ou preset
-    float ratioAttack  = 1.2f;
-    float ratioDecay   = 0.8f;
-    float ratioSustain = 0.9f;
-    float ratioRelease = 1.1f;
+    // float ratioGlobal = 1.0f;         // contrôlé par potar ou preset
+    // float ratioAttack  = 1.2f;
+    // float ratioDecay   = 0.8f;
+    // float ratioSustain = 0.9f;
+    // float ratioRelease = 1.1f;
     uint8_t currentChorusLevel = 0;
     uint8_t currentTremoloLevel = 0;
+    uint8_t noiseDefault = 5;
 
 
     static constexpr float MONO_GAIN = 0.5f;
-    static constexpr float POLY_GAIN = 0.5f;
+    static constexpr float POLY_GAIN = 0.7f;
     static constexpr float AMP2_GAIN = 1.0f;
 
     float getNote(int padIndex);
@@ -73,7 +74,7 @@ public:
     void setReverb(float size, float damp);
     void setDryWetMix(uint8_t mix);
     void setTremoloLevel(uint8_t tremoloLevel);
-    void setMoogFilterLevel(uint8_t moogLevel);
+    //void setMoogFilterLevel(uint8_t moogLevel);
     void setChorusLevel(uint8_t chorusLevel);
     void handleControlChange(uint8_t cc, uint8_t value);
     void handleSynthControlChange(uint8_t cc, uint8_t value, SynthParams& synth, EffectsParams& fx);
@@ -102,7 +103,8 @@ public:
     void loadPresetNamesFromStorage();
     void setNoiseLevel(uint8_t level);
     void setNoiseEffect(Preset* preset);
-    void setNoiseFilterType(int filterType);
+    void setNoiseFilter(uint8_t filterType, uint8_t noiseLevel);
+    void setLfoEnv(int att, int dec, float sust, int rel);
 };
 
 extern uint8_t activeMidiNotes[NUM_TOUCH_PADS];

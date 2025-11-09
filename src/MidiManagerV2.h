@@ -11,6 +11,7 @@ private:
     inline static byte sysexBuffer[512];
     inline static int sysexBufferIndex = 0;
     inline static bool sysexInProgress = false;
+    
 
 public:
     inline static uint8_t midiChannel = 1;
@@ -59,49 +60,55 @@ public:
     }
 
     static void read() {
-        if (!enabled) return;
-        while (usbMIDI.read()) {
-            byte type = usbMIDI.getType();
-            if (type == usbMIDI.SystemExclusive) {
-                const byte* sysexData = usbMIDI.getSysExArray();
-                unsigned int sysexLength = usbMIDI.getSysExArrayLength();
+    if (!enabled) return;
 
-                if (sysexLength == 0 || sysexBufferIndex + sysexLength > sizeof(sysexBuffer)) {
-                    sysexBufferIndex = 0;
-                    sysexInProgress = false;
-                    continue;
-                }
+    while (usbMIDI.read()) {
+        byte type = usbMIDI.getType();
 
-                memcpy(sysexBuffer + sysexBufferIndex, sysexData, sysexLength);
-                sysexBufferIndex += sysexLength;
+        if (type == usbMIDI.SystemExclusive) {
+            unsigned int sysexLength = usbMIDI.getSysExArrayLength();
 
-                if (sysexData[sysexLength - 1] == 0xF7) {
-                    if (onSysEx) onSysEx(sysexBuffer, sysexBufferIndex);
-                    sysexBufferIndex = 0;
-                    sysexInProgress = false;
-                } else {
-                    sysexInProgress = true;
-                }
+            if (sysexLength == 0) {
+                DEBUG_INFO_MIDI("⚠️  SysEx vide !");
                 continue;
             }
 
-            switch (type) {
-                case usbMIDI.NoteOn:
-                    if (onNoteOn) onNoteOn(usbMIDI.getData1(), usbMIDI.getData2());
-                    break;
-                case usbMIDI.NoteOff:
-                    if (onNoteOff) onNoteOff(usbMIDI.getData1(), usbMIDI.getData2());
-                    break;
-                case usbMIDI.ControlChange:
-                    if (onControlChange) onControlChange(usbMIDI.getData1(), usbMIDI.getData2());
-                    break;
+            if (sysexLength > sizeof(sysexBuffer)) {
+                DEBUG_INFO_MIDI("⚠️  SysEx trop long pour le buffer !");
+                continue;
             }
+
+            const byte* sysexData = usbMIDI.getSysExArray();
+            memcpy(sysexBuffer, sysexData, sysexLength);
+            sysexBufferIndex = sysexLength;
+
+            // Appel immédiat du callback
+            if (onSysEx) onSysEx(sysexBuffer, sysexBufferIndex);
+
+            // Reset buffer
+            sysexBufferIndex = 0;
+
+            continue;
+        }
+
+        // Autres messages MIDI
+        switch (type) {
+            case usbMIDI.NoteOn:
+                if (onNoteOn) onNoteOn(usbMIDI.getData1(), usbMIDI.getData2());
+                break;
+            case usbMIDI.NoteOff:
+                if (onNoteOff) onNoteOff(usbMIDI.getData1(), usbMIDI.getData2());
+                break;
+            case usbMIDI.ControlChange:
+                if (onControlChange) onControlChange(usbMIDI.getData1(), usbMIDI.getData2());
+                break;
         }
     }
+}
+
+
 };
 
-// byte MidiManager::sysexBuffer[512];
-// int MidiManager::sysexBufferIndex = 0;
-// bool MidiManager::sysexInProgress = false;
+
 
 #endif // MIDI_MANAGERV2_H

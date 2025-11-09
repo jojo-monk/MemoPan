@@ -34,7 +34,6 @@ struct __attribute__((packed)) PresetFlash {
     uint16_t version = 1;
 };
 
-// Taille réduite : ~150 bytes au lieu de ~500 bytes !
 
 class PresetStorage {
 private:

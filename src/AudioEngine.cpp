@@ -164,27 +164,30 @@ AudioEngine::AudioEngine() :
   // ========== CONNEXIONS MoogFilter ========
   dcMoogEnvToMoogEnv(dcMoogEnv, 0, moogEnv, 0),
   moogEnvToMoogFilter(moogEnv, 0, moogFilter, 1),
-  moogLfoToMoogFilter(moogLfo, 0, moogFilter, 2),
-  moogFilterToMoogMix1(moogFilter, 0, moogMix, 1),
-  moogMixToFiltre(moogMix, 0, filtre, 0),
-  moogMixToDryWet(moogMix, 0, dryWetMix, 1),
+  moogLfoToEnv(moogLfo, 0, moogLfoEnv, 0),
+  moogLfoEnvToMoogFilter(moogLfoEnv, 0, moogFilter, 2),
+  moogMixToConvert(moogFilter, 0, convertIn, 0),
+  ConvertToM2S(convertIn, 0, mono2stereo, 0),
+  M2SToPolyReverbL(mono2stereo, 0, polyReverb, 0),
+  M2SToPolyReverbR(mono2stereo, 1, polyReverb, 1),
+  polyReverbToPolyAmpL(polyReverb, 0, polyAmp, 0),
+  polyReverbToPolyAmpR(polyReverb, 1, polyAmp, 1),
+  polyAmpLToConvert(polyAmp, 0, convert_left, 0),
+  polyAmpRToConvert(polyAmp, 1, convert_right, 0),
 
   // ========== CONNEXIONS EFFETS ==========
-  FToReverb(filtre, 0, polyReverb, 0),
-  lfoToTremolo(lfo, 0, tremolo, 1),
+  tremoloLfoToEnv(lfo, 0, tremoloEnv, 0),
+  EnvToTremolo(tremoloEnv, 0, tremolo, 1),
   tremoloToFxMixer(tremolo, 0, fxMixer, 1),
   polyMixerGlobalToTremolo(polyMixerGlobal, 0, tremolo, 0),
-  polyReverbTodryWet(polyReverb, 0, dryWetMix, 0),
   polyMixerGlobalToChorus(polyMixerGlobal, 0, chorus, 0),
   chorusToFxMixer(chorus, 0, fxMixer, 2),
-  FxMixerTodrywet(fxMixer, 0, moogMix, 0),
-  polyMixerGlobalToNoiseMix(polyMixerGlobal, 0, fxMixer, 0),
+  polyMixerGlobalToNoiseMix(polyMixerGlobal, 0, noiseMix, 0),
   fxMixerToF(fxMixer, 0, moogFilter, 0),
-  dryWetToAmp(dryWetMix, 0, polyAmp, 0),
   noiseMixToFxMixer(noiseMix, 0, fxMixer, 0),
 
   //========== CONNEXIONS NOISE GENERATOR ========
-  pinkNoiseToNoiseEnv(pinkNoise, 0, noiseEnv, 0),
+  whiteNoiseToNoiseEnv(whiteNoise, 0, noiseEnv, 0),
   noiseEnvToNoiseFilter(noiseEnv, 0, noiseFilter, 0),
   noiseCutOffEnvToNoiseFilter(noiseCutOffEnv, 0, noiseFilter, 1),
   noiseFilterToNoiseMix1(noiseFilter, 0, noiseMix, 1),
@@ -193,8 +196,8 @@ AudioEngine::AudioEngine() :
   noiseDcToNoiseCutOffEnv(noiseDc, 0, noiseCutOffEnv, 0),
 
   // ========== SORTIE FINALE I2S ==========
-  finalToI2S_L0(polyAmp, 0, i2s1, 0),
-  finalToI2S_R0(polyAmp, 0, i2s1, 1)
+  finalToI2S_L0(convert_left, 0, i2s1, 0),
+  finalToI2S_R0(convert_right, 0, i2s1, 1)
 {
   // Initialisation de base des oscillateurs et enveloppes
   for (int i = 0; i < NUM_TOUCH_PADS; i++) {
@@ -214,9 +217,17 @@ AudioEngine::AudioEngine() :
     moogEnv.decay(1800);
     moogEnv.sustain(0.6);
     moogEnv.release(800);
+    moogLfoEnv.attack(30);
+    moogLfoEnv.decay(1800);
+    moogLfoEnv.sustain(0.6);
+    moogLfoEnv.release(800);
+    tremoloEnv.attack(30);
+    tremoloEnv.decay(1800);
+    tremoloEnv.sustain(0.6);
+    tremoloEnv.release(800);
     dcMoogEnv.amplitude(1);
     noiseDc.amplitude(1);
-    pinkNoise.amplitude(0);
+    whiteNoise.amplitude(0);
     noiseEnv.attack(10);
     noiseEnv.decay(500);
     noiseEnv.sustain(0.0);
@@ -233,13 +244,14 @@ bool AudioEngine::begin() {
   delay(300);
   
   // ========== ALLOCATION MÉMOIRE AUDIO ==========
-  AudioMemory(80);
+  AudioMemory(90);
+  AudioMemory_F32(50);
+
   delay(100);
 
   // ========== ACTIVATION DU CODEC AUDIO ==========
   if (!sgtl5000_1.enable()) {
     DEBUG_INFO_SOUND("Audio Shield not found!");
-    // Continuez quand même, parfois ça marche malgré le message
   }
   delay(20);
 
@@ -259,11 +271,9 @@ bool AudioEngine::begin() {
     polyEnv2[i].noteOff();
   }
   moogEnv.noteOff();
-
-  polyAmp.gain(0.0);  // Ampli principal à 0
-
+  polyAmp.setGain(0);
   // ========== RAMPE PROGRESSIVE DU VOLUME ==========
-  for (float vol = 0.0; vol <= 0.6; vol += 0.02) {
+  for (float vol = 0.0; vol <= 0.7; vol += 0.02) {
     sgtl5000_1.volume(vol);
     delay(20);
   }
@@ -271,7 +281,7 @@ bool AudioEngine::begin() {
   delay(300);
 
   // ========== CONFIGURATION FINALE DU CODEC ==========
-  sgtl5000_1.volume(0.7);
+  sgtl5000_1.volume(0.8);
   sgtl5000_1.unmuteHeadphone();
   sgtl5000_1.unmuteLineout();
   sgtl5000_1.inputSelect(AUDIO_INPUT_LINEIN);
@@ -281,8 +291,8 @@ bool AudioEngine::begin() {
   delay(300);
 
   // ========== RAMPE FINALE DE L'AMPLI PRINCIPAL ==========
-  for (float gain = 0.0; gain <= 0.8; gain += 0.02) {
-    polyAmp.gain(gain);
+  for (float gain = 0.0; gain <= 1; gain += 0.02) {
+    polyAmp.setGain(gain);
     delay(5);
   }
 
@@ -297,9 +307,9 @@ bool AudioEngine::begin() {
 
 void AudioEngine::setupDefaultGains() {
   const float sampleLevel = 0.7;
-  const float polyMixerGain = 0.5;
+  const float polyMixerGain = 0.7;
   const float stringLevel = 1.0;
-  const float drumLevel = 1.5;
+  const float drumLevel = 1.0;
 
   // ========== SAMPLE MIXERS ==========
   for (int i = 0; i < 3; i++) {
@@ -337,10 +347,10 @@ void AudioEngine::setupDefaultGains() {
   soundMixer[8].gain(1, drumLevel);
 
   // ========== GLOBAL MIXER ==========
-  polyMixerGlobal.gain(0, 0.8);
-  polyMixerGlobal.gain(1, 0.8);
+  polyMixerGlobal.gain(0, 0.7);
+  polyMixerGlobal.gain(1, 0.7);
   polyMixerGlobal.gain(2, 0.7);
-  polyMixerGlobal.gain(3, 0.9);
+  polyMixerGlobal.gain(3, 0.7);
 
   amp2.gain(1.0);
 
@@ -349,14 +359,16 @@ void AudioEngine::setupDefaultGains() {
   fxMixer.gain(1, 0.2);  // Tremolo
   fxMixer.gain(2, 0);    // Chorus (off par défaut)
   fxMixer.gain(3, 0.7);  // Samples
-  moogMix.gain(0, 0.5); // signal direct sans passer par moogFilter
-  moogMix.gain(1, 0.5); // signal sortie du moogFilter
-  moogMix.gain(2, 0);
-  moogMix.gain(3, 0);
   // ========== DRY/WET MIX ==========
-  dryWetMix.gain(0, 0.3);  // Dry (reverb)
-  dryWetMix.gain(1, 0.7);  // Wet (fxMixer)
-  noiseMix.gain(0, 0.7);  // signal direct du polyMixerGlobal
+  mono2stereo.setSpread(0.5);
+  mono2stereo.setPan(0.5);
+  polyReverb.size(0.9);
+  polyReverb.hidamp(0.3);
+  polyReverb.lodamp(0.2);
+  polyReverb.lowpass(0.8);
+  polyReverb.diffusion(0.95);
+  polyReverb.mix(0.7);
+  noiseMix.gain(0, 0.8);  // signal direct du polyMixerGlobal
   noiseMix.gain(1, 0);  // signal sortie du noiseFilter 1
   noiseMix.gain(2, 0);  // signal sortie du noiseFilter 2
   noiseMix.gain(3, 0);

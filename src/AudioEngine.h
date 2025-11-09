@@ -4,6 +4,8 @@
 
 #include <Audio.h>
 #include "config.h"
+#include <OpenAudio_ArduinoLibrary.h>
+#include <hexefx_audiolib_F32.h>
 
 // Classe dédiée au moteur audio (objets audio et connexions)
 class AudioEngine {
@@ -11,8 +13,12 @@ public:
   // Objets audio publics pour accès direct
   AudioOutputI2S                i2s1;
   AudioControlSGTL5000          sgtl5000_1;
-  AudioAmplifier                polyAmp;
+  AudioEffectGainStereo_F32     polyAmp;
+  AudioEffectMonoToStereo_F32   mono2stereo;
   AudioAmplifier                amp2;
+  AudioConvert_I16toF32         convertIn;
+  AudioConvert_F32toI16         convert_left;
+  AudioConvert_F32toI16         convert_right;
 
   // Synthétiseurs polyphoniques
   AudioPlayMemory               polySample[NUM_TOUCH_PADS];
@@ -24,9 +30,10 @@ public:
   AudioSynthKarplusStrong       polyString[NUM_TOUCH_PADS];
   AudioSynthSimpleDrum          polyDrum[NUM_TOUCH_PADS];
   
+  
 
   // Effets
-  AudioSynthNoisePink           pinkNoise;
+  AudioSynthNoiseWhite          whiteNoise;
   AudioEffectEnvelope           noiseEnv;
   AudioEffectEnvelope           noiseCutOffEnv;
   AudioSynthWaveformDc          noiseDc;
@@ -41,18 +48,19 @@ public:
   AudioMixer4                   polyMixerGlobal;
   AudioMixer4                   soundMixer[9];
   AudioMixer4                   fxMixer;
-  AudioMixer4                   dryWetMix;
-  AudioEffectFreeverb           polyReverb;
-  AudioFilterStateVariable      filtre;
+  AudioEffectPlateReverb_F32    polyReverb;
   AudioSynthWaveform            lfo;
   AudioEffectMultiply           tremolo;
   AudioEffectChorus             chorus;
   AudioFilterLadder             moogFilter;
   AudioFilterStateVariable      noiseFilter;
+  AudioEffectEnvelope           tremoloEnv;
+  AudioEffectEnvelope           moogLfoEnv;
+  
+
   
   // Mixers
   AudioMixer4 sampleMixer[4];
-  AudioMixer4 moogMix;
   AudioMixer4 noiseMix;
 
   // Constructeur : initialise toutes les connexions
@@ -144,12 +152,23 @@ private:
     AudioConnection dcMoogEnvToMoogEnv;
     AudioConnection moogEnvToMoogFilter;
     AudioConnection moogFilterToMoogMix1;
-    AudioConnection moogMixToFiltre;
-    AudioConnection moogLfoToMoogFilter;
-    AudioConnection moogMixToDryWet;
+    //AudioConnection moogMixToFiltre;
+    AudioConnection moogMixToConvert;
+    AudioConnection_F32 ConvertToM2S;
+    AudioConnection_F32 M2SToPolyReverbL;
+    AudioConnection_F32 M2SToPolyReverbR;
+    AudioConnection moogLfoToEnv;
+    AudioConnection moogLfoEnvToMoogFilter;
+    //AudioConnection moogMixToDryWet;
+    AudioConnection_F32 polyReverbToPolyAmpL;
+    AudioConnection_F32 polyReverbToPolyAmpR;
+    AudioConnection_F32 polyAmpLToConvert;
+    AudioConnection_F32 polyAmpRToConvert;
     AudioConnection fxMixerTomoogMix;
+    AudioConnection fxMixerToBiquad;
+    AudioConnection biquadToMoogFilter;
 
-    AudioConnection pinkNoiseToNoiseEnv;
+    AudioConnection whiteNoiseToNoiseEnv;
     AudioConnection noiseFilterToNoiseMix1;
     AudioConnection noiseFilterToNoiseMix2;
     AudioConnection noiseFilterToNoiseMix3;
@@ -238,17 +257,15 @@ private:
     AudioConnection dcPolyEnv2ToPolyEnv2_11;
     AudioConnection dcPolyEnv2ToPolyEnv2_12;
 
-    AudioConnection FToReverb;
-    AudioConnection lfoToTremolo;
+    AudioConnection tremoloLfoToEnv;
+    AudioConnection EnvToTremolo;
     AudioConnection tremoloToFxMixer;
     AudioConnection polyMixerGlobalToTremolo;
-    AudioConnection polyReverbTodryWet;
     AudioConnection polyMixerGlobalToChorus;
     AudioConnection chorusToFxMixer;
     AudioConnection FxMixerTodrywet;
     AudioConnection polyMixerGlobalToNoiseMix;
     AudioConnection fxMixerToF;
-    AudioConnection dryWetToAmp;
     AudioConnection finalToI2S_L0;
     AudioConnection finalToI2S_R0;
 };

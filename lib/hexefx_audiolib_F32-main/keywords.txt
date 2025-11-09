@@ -1,0 +1,216 @@
+#library name
+hexefx_audiolib_F32	KEYWORD1
+
+AudioFilterAllpass	KEYWORD1
+init	KEYWORD2
+reset	KEYWORD2
+process	KEYWORD2
+coeff	KEYWORD2
+
+AudioBasicDelay	KEYWORD1
+getTap	KEYWORD2
+write_toOffset	KEYWORD2
+updateIndex	KEYWORD2
+
+AudioBasicLfo	KEYWORD1
+update	KEYWORD2
+get	KEYWORD2
+setRate	KEYWORD2
+setDepth	KEYWORD2
+
+AudioBasicPitch	KEYWORD1
+setPitch	KEYWORD2
+setPitchSemintone	KEYWORD2
+setTone	KEYWORD2
+setMix	KEYWORD2
+
+AudioFilterShelvingLPHP	KEYWORD1
+AudioFilterLP	KEYWORD1
+
+AudioBasicTempBuffer_F32	KEYWORD1
+
+AudioEffectInfinitePhaser_F32	KEYWORD1
+depth	KEYWORD2
+depth_top	KEYWORD2
+depth_btm	KEYWORD2
+lfo	KEYWORD2
+lfo_rate	KEYWORD2
+feedback	KEYWORD2
+stages	KEYWORD2
+set_bypass	KEYWORD2
+get_bypass	KEYWORD2
+tgl_bypass	KEYWORD2
+
+AudioEffectMonoToStereo_F32	KEYWORD1
+stereo_set	KEYWORD2
+pan_set	KEYWORD2
+
+AudioEffectPhaserStereo_F32	KEYWORD1
+top	KEYWORD2
+btm	KEYWORD2
+stereo	KEYWORD2
+
+AudioEffectPlateReverb_F32	KEYWORD1
+begin	KEYWORD2
+size	KEYWORD2
+size_get	KEYWORD2
+hidamp	KEYWORD2
+lodamp	KEYWORD2
+lowpass	KEYWORD2
+hipass	KEYWORD2
+diffusion	KEYWORD2
+freeze	KEYWORD2
+freezeBleedIn	KEYWORD2
+wet_level	KEYWORD2
+dry_level	KEYWORD2
+freeze_tgl	KEYWORD2
+freeze_get	KEYWORD2
+chorus	KEYWORD2
+shimmer	KEYWORD2
+shimmerPitch	KEYWORD2
+shimmerPitchSemitones	KEYWORD2
+pitchSemitones	KEYWORD2
+pitchMix	KEYWORD2
+
+AudioFilterTDF2	KEYWORD1
+clear	KEYWORD2
+
+AudioFilterToneStackStereo_F32	KEYWORD1
+setModel	KEYWORD2
+getName	KEYWORD2
+setTone	KEYWORD2
+setBass	KEYWORD2
+setMid	KEYWORD2
+setTreble	KEYWORD2
+
+AudioEffectNoiseGateStereo_F32	KEYWORD1
+
+AudioFilterEqualizer3band_F32	KEYWORD1
+setBands	KEYWORD2
+treble	KEYWORD2
+mid	KEYWORD2
+bass	KEYWORD2
+set	KEYWORD2
+
+AudioEffectSpringReverb_F32	KEYWORD1
+time	KEYWORD2
+treble_cut	KEYWORD2
+bass_cut	KEYWORD2
+
+AudioEffectDelayStereo_F32	KEYWORD1
+delay	KEYWORD2
+feedback	KEYWORD2
+inertia	KEYWORD2
+mod_rateHz	KEYWORD2
+mod_rate	KEYWORD2
+mod_depth	KEYWORD2
+tap_tempo	KEYWORD2
+
+AudioEffectReverbSc_F32	KEYWORD1
+lowpass	KEYWORD2
+
+AudioEffectCompressorStereo_F32	KEYWORD1
+setDefaultValues	KEYWORD2
+calcAudioLevel_dB	KEYWORD2
+calcGain	KEYWORD2
+calcInstantaneousTargetGain	KEYWORD2
+calcSmoothedGain_dB	KEYWORD2
+resetStates	KEYWORD2
+setPreGain	KEYWORD2
+setPreGain_dB	KEYWORD2
+setPostGain	KEYWORD2
+setPostGain_dB	KEYWORD2
+setCompressionRatio	KEYWORD2
+setAttack_sec	KEYWORD2
+setRelease_sec	KEYWORD2
+setLevelTimeConst_sec	KEYWORD2
+setThresh_dBFS	KEYWORD2
+enableHPFilter	KEYWORD2
+getPreGain_dB	KEYWORD2
+getAttack_sec	KEYWORD2
+getRelease_sec	KEYWORD2
+getLevelTimeConst_sec	KEYWORD2
+getThresh_dBFS	KEYWORD2
+getCompressionRatio	KEYWORD2
+getCurrentLevel_dBFS	KEYWORD2
+getCurrentGain_dB	KEYWORD2
+setHPFilterCoeff_N2IIR_Matlab	
+bypass_get	KEYWORD2
+bypass_set	KEYWORD2
+bypass_tgl	KEYWORD2
+setSideChainMode	KEYWORD2
+
+AudioEffectGainStereo_F32	KEYWORD1
+setGain	KEYWORD2
+setGain_dB	KEYWORD2
+getGain	KEYWORD2
+getGain_dB	KEYWORD2
+setPan	KEYWORD2
+getPan	KEYWORD2
+
+AudioEffectGuitarBooster_F32	KEYWORD1
+drive	KEYWORD2
+bottom	KEYWORD2
+tone	KEYWORD2
+bias	KEYWORD2
+mix	KEYWORD2
+volume	KEYWORD2
+octave_get	KEYWORD2
+octave_set	KEYWORD2
+octave_tgl	KEYWORD2
+
+AudioFilterIRCabsim_F32	KEYWORD1
+ir_register	KEYWORD2
+ir_load	KEYWORD2
+ir_get	KEYWORD2
+ir_get_len_ms	KEYWORD2
+doubler_set	KEYWORD2
+doubler_tgl	KEYWORD2
+doubler_get	KEYWORD2
+
+AudioFilterIRCabsim_SD_F32	KEYWORD1
+ir_load_next	KEYWORD2
+ir_load_prev	KEYWORD2
+ir_load_first	KEYWORD2
+get_err_msg	KEYWORD2
+ir_get_name	KEYWORD2
+ir_get_idx	KEYWORD2
+ir_get_params	KEYWORD2
+input_gain	KEYWORD2
+init_done	KEYWORD2
+factory_reset	KEYWORD2
+get_ir_path	KEYWORD2
+get_conf_path	KEYWORD2
+sd_read_u16	KEYWORD2
+sd_read_u32	KEYWORD2
+sd_rd_sample16	KEYWORD2
+sd_rd_sample24	KEYWORD2
+parse_wav_header	KEYWORD2
+scan_ir_dir	KEYWORD2
+load_builtin_ir	KEYWORD2
+write_conf	KEYWORD2
+
+AudioFilterDCblockerStereo_F32	KEYWORD1
+
+
+AudioControlAK4452_F32	KEYWORD1
+AudioControlAK4558_F32	KEYWORD1
+DCblocker_en	KEYWORD2
+AudioControlAK5552_F32	KEYWORD1
+AudioControlES8388_F32	KEYWORD1
+AudioControlSGTL5000_F32	KEYWORD1
+AudioControlWM8731_F32	KEYWORD1
+
+
+memcpyInterleave_f32	KEYWORD2
+memcpyDeinterleave_f32	KEYWORD2
+
+AudioInputI2S2_F32	KEYWORD1
+AudioOutputI2S2_F32	KEYWORD1
+
+AudioControlSGTL5000_Ext	KEYWORD1
+
+AudioControlWM8731_Ext	KEYWORD1
+dac_mute	KEYWORD2
+HPfilter	KEYWORD2
+

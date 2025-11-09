@@ -33,6 +33,8 @@ struct __attribute__((packed)) SynthParams {
     float FMEnvAmount;  // ratio d'env de FM de 0 à 3
     uint8_t FMWaveform;
     float lpfOctaveControl; // de 0.0 à 4.0
+    uint8_t FMwavetable;
+    uint8_t wavetable;
 };
 
 struct __attribute__((packed)) DrumParams {

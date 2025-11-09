@@ -5,8 +5,6 @@
 #include "config.h"
 //#include <MIDI.h>
 
-// Créer une instance MIDI
-//MIDI_CREATE_DEFAULT_INSTANCE();
 
 
 // ========== FONCTIONS DE DÉCODAGE ==========
@@ -43,19 +41,6 @@ float SysExHandler::decodeFloat(const byte* data, int& idx) {
     return result;
 }
 
-// float SysExHandler::decodeFloat(const byte* data, int& idx) {
-//     if (idx + 8 > 1024) return 0.0f;  // Protection
-    
-//     byte bytes[4];
-//     for (int i = 0; i < 4; i++) {
-//         bytes[i] = data[idx] | (data[idx+1] << 7);
-//         idx += 2;
-//     }
-    
-//     float result;
-//     memcpy(&result, bytes, 4);
-//     return result;
-// }
 
 void SysExHandler::decodeString(const byte* data, int& idx, char* output, int maxLen) {
     int i;
@@ -119,19 +104,9 @@ void SysExHandler::encodeString(byte* buffer, int& idx, const char* str, int max
         buffer[idx++] = ' '; // ou 0
     }
 }
-// void SysExHandler::encodeString(byte* output, int& idx, const char* str, int maxLen) {
-//     int len = strlen(str);
-//     for (int i = 0; i < maxLen; i++) {
-//         if (i < len) {
-//             output[idx++] = str[i] & 0x7F;
-//         } else {
-//             output[idx++] = 0;
-//         }
-//     }
-// }
+
 
 // ========== PARSERS ==========
-
 void SysExHandler::parseSynthParams(const byte* data, int& idx, SynthParams& params) {
     params.waveformType = data[idx++];
     params.amplitude = decodeFloat(data, idx);
@@ -154,7 +129,17 @@ void SysExHandler::parseSynthParams(const byte* data, int& idx, SynthParams& par
     params.FMEnvAmount = decodeFloat(data, idx);
     params.FMWaveform = data[idx++];
     params.lpfOctaveControl = decodeFloat(data, idx);
+    params.FMwavetable = data[idx++];
+    params.wavetable = data[idx++];
+}
 
+void SysExHandler::parseStringParams(const byte* data, int& idx, StringParams& params) {
+    params.velocity = decodeFloat(data, idx);
+    params.moogAttack = decodeInt16(data, idx);
+    params.moogDecay = decodeInt16(data, idx);
+    params.moogSustain = decodeFloat(data, idx);
+    params.moogRelease = decodeInt16(data, idx);
+    params.octaveShift = data[idx++];
 }
 
 void SysExHandler::parseDrumParams(const byte* data, int& idx, DrumParams& params) {
@@ -164,34 +149,15 @@ void SysExHandler::parseDrumParams(const byte* data, int& idx, DrumParams& param
     params.moogAttack = decodeInt16(data, idx);
     params.moogDecay = decodeInt16(data, idx);
     params.moogSustain = decodeFloat(data, idx);
-    params.moogRelease = decodeFloat(data, idx);
-    params.octaveShift = data[idx++];
-}
-
-void SysExHandler::parseStringParams(const byte* data, int& idx, StringParams& params) {
-    params.velocity = decodeFloat(data, idx);
-    params.moogAttack = decodeInt16(data, idx);
-    params.moogDecay = decodeInt16(data, idx);
-    params.moogSustain = decodeFloat(data, idx);
-    params.moogRelease = decodeFloat(data, idx);
+    params.moogRelease = decodeInt16(data, idx);
     params.octaveShift = data[idx++];
 }
 
 void SysExHandler::parseSampleParams(const byte* data, int& idx, SampleParams& params) {
-    // int numFiles = data[idx++];
-    
-    // // Parser les noms de fichiers
-    // char tempFilename[33];
-    // for (int i = 0; i < 12; i++) {
-    //     decodeString(data, idx, tempFilename, 32);
-    //     // Note: Il faudra allouer de la mémoire dynamique ou utiliser un buffer statique
-    //     // pour stocker les noms de fichiers si nécessaire
-    // }
-    
     params.moogAttack = decodeInt16(data, idx);
     params.moogDecay = decodeInt16(data, idx);
     params.moogSustain = decodeFloat(data, idx);
-    params.moogRelease = decodeFloat(data, idx);
+    params.moogRelease = decodeInt16(data, idx);
 }
 
 void SysExHandler::parseEffects(const byte* data, int& idx, EffectsParams& effects) {
@@ -221,6 +187,8 @@ void SysExHandler::parseEffects(const byte* data, int& idx, EffectsParams& effec
     effects.moogResonance = decodeFloat(data, idx);
 }
 
+
+
 // ========== ENCODERS ==========
 
 void SysExHandler::encodeSynthParams(byte* output, int& idx, const SynthParams& params) {
@@ -248,12 +216,13 @@ void SysExHandler::encodeSynthParams(byte* output, int& idx, const SynthParams& 
     encodeFloat(output, idx, params.moogRelease);
     encodeFloat(output, idx, params.lpfResonance);
     output[idx++] = params.octaveShift & 0x7F;
-    //encodeInt16(output, idx, params.octaveShift);
     encodeFloat(output, idx, params.lpfCutoff);
     encodeFloat(output, idx, params.lpfEnvAmount);
     encodeFloat(output, idx, params.FMEnvAmount);
     output[idx++] = params.FMWaveform & 0x7F;
     encodeFloat(output, idx, params.lpfOctaveControl);
+    output[idx++] = params.FMwavetable & 0x7F;
+    output[idx++] = params.FMwavetable & 0x7F;
 }
 
 void SysExHandler::encodeDrumParams(byte* output, int& idx, const DrumParams& params) {
@@ -265,7 +234,6 @@ void SysExHandler::encodeDrumParams(byte* output, int& idx, const DrumParams& pa
     encodeFloat(output, idx, params.moogSustain);
     encodeFloat(output, idx, params.moogRelease);
     output[idx++] = params.octaveShift & 0x7F;
-    //encodeInt16(output, idx, params.octaveShift);
 }
 
 void SysExHandler::encodeStringParams(byte* output, int& idx, const StringParams& params) {
@@ -275,17 +243,9 @@ void SysExHandler::encodeStringParams(byte* output, int& idx, const StringParams
     encodeFloat(output, idx, params.moogSustain);
     encodeFloat(output, idx, params.moogRelease);
     output[idx++] = params.octaveShift & 0x7F;
-    //encodeInt16(output, idx, params.octaveShift);
 }
 
 void SysExHandler::encodeSampleParams(byte* output, int& idx, const SampleParams& params) {
-    // Note: Il faudra ajuster cette partie si on stocke plusieurs fichiers
-    //int numFiles = 1; // Pour l'instant, on encode un seul fichier
-    //output[idx++] = numFiles & 0x7F;
-    
-    // Encoder les noms de fichiers (ici, on utilise des noms fictifs)
-    //const char* sampleFilename = "sample.wav";
-    //encodeString(output, idx, sampleFilename, 32);
     
     encodeInt16(output, idx, params.moogAttack);
     encodeInt16(output, idx, params.moogDecay);
@@ -323,7 +283,8 @@ void SysExHandler::encodeEffects(byte* output, int& idx, const EffectsParams& ef
 // ========== HANDLER PRINCIPAL ==========
 
 void SysExHandler::handleSysEx(byte* data, unsigned int length) {
-
+    Serial.print("Premier byte reçu: 0x");
+    Serial.println(data[0], HEX);
     Serial.print("SysEx reçu (");
     Serial.print(length);
     Serial.print(" bytes): ");
@@ -355,7 +316,6 @@ void SysExHandler::handleSysEx(byte* data, unsigned int length) {
             // Décoder le nom
             char presetName[13];
             decodeString(data, idx, presetName, 12);
-            //idx += 12;
             
             // Parser selon le type
             currentPreset->presetName = presetName;
@@ -365,13 +325,13 @@ void SysExHandler::handleSysEx(byte* data, unsigned int length) {
                     currentPreset->sound.type = SYNTH;
                     parseSynthParams(data, idx, currentPreset->sound.synth);
                     break;
-                case 1: // STRING
-                    currentPreset->sound.type = STRING;
-                    parseStringParams(data, idx, currentPreset->sound.string);
-                    break;
-                case 2: // DRUM
+                case 1: // DRUM
                     currentPreset->sound.type = DRUM;
                     parseDrumParams(data, idx, currentPreset->sound.drum);
+                    break;
+                case 2: // STRING
+                    currentPreset->sound.type = STRING;
+                    parseStringParams(data, idx, currentPreset->sound.string);
                     break;
                 case 3: // SAMPLE
                     currentPreset->sound.type = SAMPLE;
@@ -398,15 +358,24 @@ void SysExHandler::handleSysEx(byte* data, unsigned int length) {
             Serial.print("Preset demandé : ");
             Serial.println(presetNumber);
             if (presetNumber < maxPresets) {
+                Preset* p = &presetStorage[presetNumber];
+                // Appliquer le preset sur le Teensy
+                if(onPresetReceived) {
+                    Serial.println("application du preset");
+                    onPresetReceived(p);
+                }
                 sendPresetData(presetNumber);
             }
             break;
         }
+        
         case CMD_SAVE_PRESET: {
-            Serial.print("sauvegarde demandé");
+            Serial.print("Sauvegarde demandée");
             byte presetNumber = data[idx++];
-            if (presetNumber >= maxPresets) return;
-
+            if (presetNumber >= maxPresets) {
+                Serial.println("✗ Numéro de preset invalide");
+                return;
+            }
             byte presetType = data[idx++];
 
             // Décodage du nom (12 caractères max)
@@ -418,68 +387,66 @@ void SysExHandler::handleSysEx(byte* data, unsigned int length) {
 
             Preset* targetPreset = &presetStorage[presetNumber];
             targetPreset->presetName = tempPresetName; // Assigne le nom décodé
-            if (storage->savePreset(presetNumber, *targetPreset)) {
-            Serial.println("✓ Sauvegardé dans flash");
-    
-            // TEST IMMÉDIAT
-            Preset verification;
-            if (storage->loadPreset(presetNumber, verification)) {
-                Serial.print("TEST - Nom relu immédiatement : '");
-                Serial.print(verification.presetName);
-                Serial.println("'");
-                
-                Serial.print("TEST - Attack relu : ");
-                Serial.println(verification.sound.synth.attack);
-                
-                // Comparer avec ce qu'on vient de sauvegarder
-                if (strcmp(verification.presetName, targetPreset->presetName) == 0) {
-                    Serial.println("✓ VERIFICATION OK - Flash correctement écrite");
-                } else {
-                    Serial.println("✗ ERREUR - Flash corrompue ou mauvaise lecture");
-                }
-            }
-        }
+
+            // Parser selon le type
             switch (presetType) {
                 case 0: // SYNTH
                     targetPreset->sound.type = SYNTH;
                     parseSynthParams(data, idx, targetPreset->sound.synth);
                     break;
-                case 1: // STRING
-                    targetPreset->sound.type = STRING;
-                    parseStringParams(data, idx, targetPreset->sound.string);
-                    break;
-                case 2: // DRUM
+                case 1: // DRUM
                     targetPreset->sound.type = DRUM;
                     parseDrumParams(data, idx, targetPreset->sound.drum);
+                    break;
+                case 2: // STRING
+                    targetPreset->sound.type = STRING;
+                    parseStringParams(data, idx, targetPreset->sound.string);
                     break;
                 case 3: // SAMPLE
                     targetPreset->sound.type = SAMPLE;
                     parseSampleParams(data, idx, targetPreset->sound.sample);
                     break;
             }
-            
+
+            // Parser les effets
             parseEffects(data, idx, targetPreset->effects);
+
+            // Sauvegarder dans la flash
             if (storage) {
                 if (storage->savePreset(presetNumber, *targetPreset)) {
                     Serial.print("✓ Preset ");
                     Serial.print(presetNumber);
                     Serial.println(" sauvegardé dans la flash");
+
+                    // Vérification immédiate
+                    Preset verification;
+                    if (storage->loadPreset(presetNumber, verification)) {
+                        Serial.print("TEST - Nom relu : '");
+                        Serial.print(verification.presetName);
+                        Serial.println("'");
+                        // Comparer avec ce qu'on vient de sauvegarder
+                        if (strcmp(verification.presetName, targetPreset->presetName) == 0) {
+                            Serial.println("✓ VERIFICATION OK - Flash correctement écrite");
+                        } else {
+                            Serial.println("✗ ERREUR - Flash corrompue ou mauvaise lecture");
+                        }
+                    }
                 } else {
                     Serial.println("✗ Erreur sauvegarde flash");
+                    return;
                 }
             }
+
+            // Mettre à jour le nom dans presetNames
             if (presetNumber < NUM_PRESETS) {
                 strncpy(presetNames[presetNumber], targetPreset->presetName, MAX_PRESET_NAME_LEN - 1);
-                presetNames[presetNumber][MAX_PRESET_NAME_LEN - 1] = '\0'; // garantit la terminaison
-
-                //presetNames[presetNumber] = String(targetPreset->presetName);
+                presetNames[presetNumber][MAX_PRESET_NAME_LEN - 1] = '\0';
                 Serial.print("Updated preset ");
                 Serial.print(presetNumber);
                 Serial.print(" name to: ");
                 Serial.println(presetNames[presetNumber]);
             }
-    
-            
+
             Serial.print("Preset sauvegardé dans le slot ");
             Serial.println(presetNumber);
             break;

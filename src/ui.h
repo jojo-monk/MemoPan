@@ -42,7 +42,7 @@ uint16_t ui_getStepInterval();
 uint16_t ui_getModeArp();
 uint8_t ui_getTempo();
 int8_t ui_getOctaveShift();
-uint8_t ui_getMoogFilter();
+uint8_t ui_getNoise();
 
 // Fonctions pour définir les valeurs
 void ui_setOctaveShift(int8_t shift);
@@ -63,7 +63,7 @@ void ui_setStepInterval(uint16_t value);
 void ui_setTempo(uint8_t value);
 void ui_setBatteryLevel(uint8_t level);
 void ui_setArp(bool state);
-void ui_setMoogFilter(uint8_t value);
+void ui_setNoise(uint8_t value);
 
 
 // Fonction pour la sauvegarde

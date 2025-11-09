@@ -28,8 +28,9 @@ static const CCMapping ccTable[] = {
     {39, 0.0f, 2.0f},    // lpfResonance
     {40, 0.0f, 1.0f},    // reverbRoomSize
     {41, 0.0f, 1.0f},    // reverbDamping
-    {42, 0.0f, 10000.0f}, // filterFreq
-    {43, 0.0f, 2.0f},    // filterResonance
+    {42, 0.0f, 1.0f}, // filterFreq
+    //{42, 0.0f, 10000.0f}, // filterFreq
+    {43, 0.0f, 1.0f},    // filterResonance
     {44, 0.0f, 16.0f},   // nChorus
     {45, 0.0f, 20.0f},   // tremoloRate
     {46, 0.0f, 1.0f},    // tremoloAmplitude

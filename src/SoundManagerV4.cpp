@@ -1,40 +1,10 @@
 #include "SoundManagerV4.h"
-#include "AudioSampleClosedhh.h"
-#include "AudioSampleClosedhh40msw.h"
-#include "AudioSampleCowbell.h"
-#include "AudioSampleCowbell100msw.h"
-#include "AudioSampleCowbell40msw.h"
-#include "AudioSampleKick.h"
-#include "AudioSampleKick40msw.h"
-#include "AudioSampleOpenhh.h"
-#include "AudioSampleOpenhh100msw.h"
-#include "AudioSampleOpenhh40msw.h"
-#include "AudioSampleLowcongaw.h"
-#include "AudioSampleLowconga100msw.h"
-#include "AudioSampleLowconga40msw.h"
-#include "AudioSampleRimshot.h"
-#include "AudioSampleRimshot40msw.h"
-#include "AudioSampleSnare.h"
-#include "AudioSampleSnare40msw.h"
-#include "AudioSampleTabla1.h"
-#include "AudioSampleTabla1100msw.h"
-#include "AudioSampleTabla140msw.h"
-#include "AudioSampleTabla2.h"
-#include "AudioSampleTabla2100msw.h"
-#include "AudioSampleTabla240msw.h"
-#include "AudioSampleTabla3.h"
-#include "AudioSampleTabla3100msw.h"
-#include "AudioSampleTabla340msw.h"
-#include "AudioSampleTabla4.h"
-#include "AudioSampleTabla4100msw.h"
-#include "AudioSampleTabla440msw.h"
-#include "AudioSampleTabla5.h"
-#include "AudioSampleTabla5100msw.h"
-#include "AudioSampleTabla540msw.h"
+#include "audioSamples/DrumsKit1.h"
 #include "MapToMidi.h"
 #include "MidiCCMapper.h"
 #include "ui.h"
-// inclure tous tes samples ici comme avant
+#include "waveforms.h"
+
 
 MidiManager midiManager;
 //MapToMidi mapToMidi;
@@ -84,6 +54,28 @@ const unsigned int* drumSamples40ms[NUM_TOUCH_PADS] = {
     AudioSampleTabla540msw
 };
 
+const int16_t* waveTables[NUM_WAVEFORMS] = {
+  AKWF_aguitar_0001,
+  AKWF_birds_0001,
+  AKWF_blended_0001,
+  AKWF_granular_0001,
+  AKWF_theremin_0001,
+  AKWF_vgame_0001,
+  AKWF_snippet_0001,
+  AKWF_snippet_0001,
+  AKWF_sinharm_0001,
+  AKWF_saw_0002,
+  AKWF_overtone_0001,
+  AKWF_dbass_0001,
+  AKWF_raw_0001,
+  AKWF_hvoice_0001,
+  AKWF_fmsynth_0001,
+  AKWF_eorgan_0001,
+  AKWF_c604_0001,
+  AKWF_clavinet_0001
+
+};
+
 // ===== Implémentation =====
 SoundManager* SoundManager::instance = nullptr;
 
@@ -91,14 +83,14 @@ SoundManager::SoundManager()
     : audioEngine(),
       presetBank(),
       currentPreset(),
-      currentSoundMode(15),
+      currentSoundMode(),
       soundStartTime(0),
       sysexHandler(nullptr),
       storage(),
       isPlaying(false),
       scaleFreq{0},
       polyMode(true),
-      polyMixerGain(0.5f),
+      polyMixerGain(0.7f),
       stringLevel(1.0f),
       drumLevel(2.5f),
       sampleLevel(0.7f),
@@ -122,21 +114,17 @@ bool SoundManager::begin() {
     audioEngine.fxMixer.gain(1, 0.2);
     audioEngine.fxMixer.gain(2, 0);
     audioEngine.fxMixer.gain(3, 0.5);
-    audioEngine.moogMix.gain(0, 0.7);
-    audioEngine.moogMix.gain(1, 0.3);
-    audioEngine.moogMix.gain(2, 0);
-    audioEngine.moogMix.gain(3, 0);
-    audioEngine.noiseMix.gain(0, 0.7);
+    audioEngine.noiseMix.gain(0, 0.8);
     audioEngine.noiseMix.gain(1, 0);
     audioEngine.noiseMix.gain(2, 0);
     audioEngine.noiseMix.gain(3, 0);
-    audioEngine.dryWetMix.gain(0, 0.3);
-    audioEngine.dryWetMix.gain(1, 0.7);
     audioEngine.chorus.begin(delayline,CHORUS_DELAY_LENGTH,8);
     audioEngine.chorus.voices(0);
     audioEngine.lfo.begin(0);
     audioEngine.lfo.amplitude(0);
     audioEngine.moogLfo.amplitude(0);
+    audioEngine.polyReverb.bypass_setMode(BYPASS_MODE_TRAILS);
+    audioEngine.polyReverb.bypass_set(false);
     setPolyMode(true);
     buildScale(0,0);
     storage.begin();
@@ -160,18 +148,12 @@ bool SoundManager::begin() {
     }
     loadPresetNamesFromStorage();
     ui_draw();
-    //Serial.print("lpfCutoff : ");
-    //Serial.println(presetBank[0].sound.synth.lpfCutoff);
-    //storage.printFSInfo();
-    //Serial.print("Taille de PresetFlash : ");
-    //Serial.println(sizeof(PresetFlash));
-    //storage.listPresets();
-    currentPreset = presetBank[15];
+    currentPreset = presetBank[0];
     sysexHandler = new SysExHandler(presetBank, NUM_PRESETS, &currentPreset, &storage);
     sysexHandler->onPresetReceived = SoundManager::onPresetReceivedStatic;
     MidiManager::setEnabled(true);
     MidiManager::setChannel(1);
-    MidiManager::onSysEx = [this](byte* data, unsigned int length) {
+MidiManager::onSysEx = [this](byte* data, unsigned int length) {
      sysexHandler->handleSysEx(data, length);
  };
 
@@ -287,14 +269,14 @@ void SoundManager::setNoiseEffect(Preset* preset) {
     EffectsParams& fx = preset->effects;
     if (fx.noiseAmplitude == 0.0f) {
       audioEngine.noiseDc.amplitude(0);
-      audioEngine.pinkNoise.amplitude(fx.noiseAmplitude);
+      audioEngine.whiteNoise.amplitude(fx.noiseAmplitude);
       audioEngine.noiseMix.gain(1, 0); 
       audioEngine.noiseMix.gain(2, 0);
       audioEngine.noiseMix.gain(3, 0);
       return;
     }
     audioEngine.noiseDc.amplitude(1);
-    audioEngine.pinkNoise.amplitude(fx.noiseAmplitude);
+    audioEngine.whiteNoise.amplitude(fx.noiseAmplitude);
     audioEngine.noiseEnv.attack(fx.noiseEnvAttack);
     audioEngine.noiseEnv.decay(fx.noiseEnvDecay);
     audioEngine.noiseEnv.sustain(fx.noiseEnvSustain);
@@ -306,36 +288,31 @@ void SoundManager::setNoiseEffect(Preset* preset) {
     audioEngine.noiseFilter.frequency(fx.noiseCutoff);
     audioEngine.noiseFilter.resonance(fx.noiseResonance);
     audioEngine.noiseFilter.octaveControl(fx.noiseOctaveControl); // lowpass par défaut
-    setNoiseFilterType(fx.noiseFilterType);
+    setNoiseFilter(fx.noiseFilterType, ui_getNoise());
 }
 
-void SoundManager::setNoiseFilterType(int filterType) {
+void SoundManager::setNoiseFilter(uint8_t filterType, uint8_t noiseLevel) {
+  float noiseLevelFloat = ((float)noiseLevel / 10.0f) * 0.8; // 0 à 0.6
+
   switch (filterType) {
       case 0:
-        audioEngine.noiseMix.gain(1, 0.3); 
+        audioEngine.noiseMix.gain(1, noiseLevelFloat); 
         audioEngine.noiseMix.gain(2, 0);
         audioEngine.noiseMix.gain(3, 0); // lowpass
         break;
       case 1:
         audioEngine.noiseMix.gain(1, 0); 
-        audioEngine.noiseMix.gain(2, 0.3);
+        audioEngine.noiseMix.gain(2, noiseLevelFloat);
         audioEngine.noiseMix.gain(3, 0);// bandpass
         break;
       case 2:
         audioEngine.noiseMix.gain(1, 0); 
         audioEngine.noiseMix.gain(2, 0);
-        audioEngine.noiseMix.gain(3, 0.3); // highpass
+        audioEngine.noiseMix.gain(3, noiseLevelFloat); // highpass
         break;
     }
 }
 
-void SoundManager::setMoogFilterLevel(uint8_t moogLevel) {
-  float moogLevelFloat = (float)moogLevel / 10.0f; // 0 à 1
-  float dry = 1.0f - 0.8f * moogLevelFloat;  // dry descend de 1 → 0.3
-  float wet = 0.05f + 0.7f * moogLevelFloat;  // Moog monte de 0.3 → 1.0
-  audioEngine.moogMix.gain(0, dry);
-  audioEngine.moogMix.gain(1, wet);
-}
 
 void SoundManager::updateFxLevels() {
   float chorus = (float)currentChorusLevel / 10.0f;
@@ -343,17 +320,17 @@ void SoundManager::updateFxLevels() {
   DEBUG_VAR_SOUND("  currentTremolo level: ", currentTremoloLevel);
   DEBUG_VAR_SOUND("  currentChorus level: ", currentChorusLevel);
   // courbes légèrement logarithmiques pour plus de naturel
-  float chorusWet = 0.05f + 0.7f * powf(chorus, 0.8f);
-  float tremoloWet = 0.05f + 0.7f * powf(tremolo, 0.8f);
+  float chorusWet = 0.05f + 1.0f * powf(chorus, 0.8f);
+  float tremoloWet = 0.05f + 1.0f * powf(tremolo, 0.8f);
 
   // dry baisse légèrement si plusieurs effets actifs
-  float dry = 1.0f - 0.7f * chorus - 0.6f * tremolo;
-  if (dry < 0.05f) dry = 0.05f; // minimum pour ne jamais étouffer le son
+  float dry = 2.0f - 0.7f * chorus - 0.6f * tremolo;
+  if (dry < 0.05f) dry = 0.1f; // minimum pour ne jamais étouffer le son
 
   // Normalisation pour éviter clipping
   float total = dry + chorusWet + tremoloWet;
-  if (total > 1.5f) {
-    float scale = 1.5f / total;
+  if (total > 2.0f) {
+    float scale = 2.0f / total;
     dry *= scale;
     chorusWet *= scale;
     tremoloWet *= scale;
@@ -381,26 +358,31 @@ void SoundManager::setTremoloLevel(uint8_t tremoloLevel) {
 
 
 void SoundManager::setReverb(float size, float damp) {
-  audioEngine.polyReverb.roomsize(size);
-  audioEngine.polyReverb.damping(damp);
+  audioEngine.polyReverb.size(size);
+  audioEngine.polyReverb.diffusion(damp);
 }
 
 void SoundManager::setDryWetMix(uint8_t mix) {
-  float wetFloat = (float)mix / 10.0f;;
-  float dry = 1.0f - 0.7f * wetFloat;
-  float wet = 0.3f + 0.7f * wetFloat;;
-  audioEngine.dryWetMix.gain(0, wet);
-  audioEngine.dryWetMix.gain(1, dry);
+  float wetFloat = (float)mix / 10.0f;
+  if (mix == 0.0f) {
+    Serial.println("reverb bypass");
+    audioEngine.polyReverb.bypass_set(true);
+  }
+  audioEngine.polyReverb.bypass_set(false);
+  audioEngine.polyReverb.mix(wetFloat);
 }
 
 void SoundManager::setNoiseLevel(uint8_t mix) {
-  
-
+  float mixF = ((float)mix / 10.0f) * 0.8;
+  uint8_t fType = presetBank[currentSoundMode].effects.noiseFilterType;
+  setNoiseFilter(fType, mixF);
 }
 
 void SoundManager::setSoundMode(int mode) {
     if (mode < 0 || mode >= NUM_PRESETS) return;
     currentSoundMode = mode;
+    // Serial.print("currentSoundMode SetSoundMode: ");
+    // Serial.println(currentSoundMode);
     applyPreset(&presetBank[mode]);
 }
 
@@ -408,15 +390,33 @@ void SoundManager::setKeyboardMode(int mode) {
     keyboardMode = mode; 
   }
 
+void SoundManager::setLfoEnv(int att, int dec, float sust, int rel) {
+  audioEngine.moogLfoEnv.attack(att);
+  audioEngine.moogLfoEnv.decay(dec);
+  audioEngine.moogLfoEnv.sustain(sust);
+  audioEngine.moogLfoEnv.release(rel);
+  audioEngine.tremoloEnv.attack(att);
+  audioEngine.tremoloEnv.decay(dec);
+  audioEngine.tremoloEnv.sustain(sust);
+  audioEngine.tremoloEnv.release(rel);
+}
+
+
 void SoundManager::applyPreset(Preset* preset) {
-  if (!preset) return;
+  if (!preset) {
+    Serial.println("erreur de preset");
+    return;
+  }
     //const Preset& p = getPreset(mode);
-  DEBUG_INFO_SOUND("=== APPLYING PRESET ===");
-  DEBUG_VAR_SOUND("Preset name: ", preset->presetName);
+  // Serial.println("=== APPLYING PRESET ===");
+  // Serial.print("Preset name: ");
+  // Serial.println(preset->presetName);
+  // Serial.print("Sound type: ");
+  // Serial.println(preset->sound.type);
   DEBUG_VAR_SOUND("Sound type: ", preset->sound.type);
-  //const SoundMode &sm = soundModes[currentSoundMode];
-  //DEBUG_VAR_SOUND("Sound mode set to: ", sm.name);
-  //ui_setSoundType(preset->soundTypeIndex);
+  if (currentSoundMode != preset->soundTypeIndex) {
+    currentSoundMode = preset->soundTypeIndex;
+  }
   bool moogActive = false;
   EffectsParams& fx = preset->effects;
   if (fx.moogCutoff > 0.0f) {
@@ -428,10 +428,16 @@ void SoundManager::applyPreset(Preset* preset) {
         SynthParams& p = preset->sound.synth;
         for (int i = 0; i < NUM_TOUCH_PADS; i++) {
             audioEngine.polyWave[i].begin(p.waveformType);
+            if (p.waveformType == WAVEFORM_ARBITRARY) {
+              audioEngine.polyWave[i].arbitraryWaveform(waveTables[p.wavetable], 172);
+            }
             audioEngine.polyWave[i].amplitude(p.amplitude);
             audioEngine.polyWave[i].frequencyModulation(p.freqMod);
             audioEngine.polyWave[i].phaseModulation(p.phaseMod);
             audioEngine.polyModFM[i].begin(p.FMWaveform);
+            if (p.FMWaveform == WAVEFORM_ARBITRARY) {
+              audioEngine.polyModFM[i].arbitraryWaveform(waveTables[p.FMwavetable], 172);
+            }
             audioEngine.polyModFM[i].amplitude(p.modAmplitude);
             audioEngine.polyEnv[i].attack(p.attack);
             audioEngine.polyEnv[i].decay(p.decay);
@@ -448,7 +454,7 @@ void SoundManager::applyPreset(Preset* preset) {
             audioEngine.polyEnv3[i].decay(p.decay * p.FMEnvAmount);
             audioEngine.polyEnv3[i].sustain(p.sustain);
             audioEngine.polyEnv3[i].release(p.release * p.FMEnvAmount);
-        }
+          }
           if (moogActive) {
             audioEngine.moogEnv.attack(p.moogAttack);
             audioEngine.moogEnv.decay(p.moogDecay);
@@ -456,6 +462,7 @@ void SoundManager::applyPreset(Preset* preset) {
             audioEngine.moogEnv.release(p.moogRelease);
           }
             ui_setOctaveShift(p.octaveShift - 2);
+          setLfoEnv(p.attack, p.decay, p.sustain, p.release);
         }
     break;
 
@@ -474,6 +481,7 @@ void SoundManager::applyPreset(Preset* preset) {
         audioEngine.moogEnv.release(p.moogRelease);
       }
         ui_setOctaveShift(p.octaveShift - 2);
+        setLfoEnv(p.moogAttack, p.moogDecay, p.moogSustain, p.moogRelease);
     }
       break;
 
@@ -488,6 +496,7 @@ void SoundManager::applyPreset(Preset* preset) {
         audioEngine.moogEnv.release(p.moogRelease);
       }
         ui_setOctaveShift(p.octaveShift - 2);
+      setLfoEnv(p.moogAttack, p.moogDecay, p.moogSustain, p.moogRelease);
     }
       break;
     case SAMPLE:
@@ -500,13 +509,16 @@ void SoundManager::applyPreset(Preset* preset) {
         audioEngine.moogEnv.release(p.moogRelease);
       }
         ui_setOctaveShift(0);
+        setLfoEnv(p.moogAttack, p.moogDecay, p.moogSustain, p.moogRelease);
     }
       break;
   }
-    audioEngine.polyReverb.roomsize(fx.reverbRoomSize);
-    audioEngine.polyReverb.damping(fx.reverbDamping);
-    audioEngine.filtre.frequency(fx.filterFreq);
-    audioEngine.filtre.resonance(fx.filterResonance);
+    audioEngine.polyReverb.size(fx.reverbRoomSize);
+    audioEngine.polyReverb.diffusion(fx.reverbDamping);
+    audioEngine.polyReverb.lowpass(fx.filterFreq);
+    audioEngine.polyReverb.hipass(fx.filterResonance);
+    //audioEngine.filtre.frequency(fx.filterFreq);
+    //audioEngine.filtre.resonance(fx.filterResonance);
     if (moogActive) {
     audioEngine.moogFilter.frequency(fx.moogCutoff);
     audioEngine.moogFilter.resonance(fx.moogResonance);
@@ -658,7 +670,10 @@ void SoundManager::stopOneNote(int touchIndex) {
   audioEngine.polyString[touchIndex].noteOff(0.5);
   audioEngine.noiseEnv.noteOff();
   audioEngine.moogEnv.noteOff();
-  audioEngine.pinkNoise.amplitude(0);
+  audioEngine.moogLfoEnv.noteOff();
+  audioEngine.tremoloEnv.noteOff();
+  audioEngine.whiteNoise.amplitude(0);
+  //audioEngine.polyReverb.bypass_set(true);
   if (MidiManager::getEnabled() && activeMidiNotes[touchIndex] > 0) {
     MidiManager::noteOff(activeMidiNotes[touchIndex]);
     activeMidiNotes[touchIndex] = 0;
@@ -670,10 +685,13 @@ void SoundManager::stopAllSounds() {
       audioEngine.polyEnv[i].noteOff();  // release ADSR par note
       audioEngine.polyString[i].noteOff(0.5);
       audioEngine.polyEnv2[i].noteOff();
+      audioEngine.polyEnv3[i].noteOff();
     }
     audioEngine.moogEnv.noteOff();
     audioEngine.lfo.amplitude(0.0);
     audioEngine.moogLfo.amplitude(0);
+    audioEngine.whiteNoise.amplitude(0);
+    //audioEngine.polyReverb.bypass_set(true);
     //fxMixer.gain(2, 0);
     if (MidiManager::getEnabled()) {
       updateMidiNotes();
@@ -691,7 +709,9 @@ void SoundManager::volume(uint8_t vol) {
   // Conversion en float normalisé 0.0 à 1.0
   volFloat = (float)vol / 10.0f;
   //amp1.gain(volFloat);
-  audioEngine.polyAmp.gain(volFloat * 0.8);
+  audioEngine.polyAmp.setGain(volFloat * 0.8);
+  //audioEngine.polyAmpLeft.gain(volFloat * 0.9);
+  //audioEngine.polyAmpRight.gain(volFloat * 0.9);
   //amp2.gain(volFloat);
   //DEBUG_VAR_SOUND("volume amp1: ", volFloat);
   // DEBUG_PRINT("volume amp1: ");
@@ -700,8 +720,8 @@ void SoundManager::volume(uint8_t vol) {
 
 void SoundManager::readVolumePot() {
   int potValue = analogRead(VOL_POT);  // Lecture du pot (0–1023)
-  float volume = (potValue / 1023.0) * 0.7;    // Normalisé 0.0 – 1.0
-  audioEngine.sgtl5000_1.volume(volume);
+  float volume = (potValue / 1023.0);    // Normalisé 0.0 – 1.0
+  audioEngine.sgtl5000_1.volume(volume * 0.7);
 }
 
 void SoundManager::testPoly() {
@@ -862,6 +882,18 @@ void SoundManager::handleSynthControlChange(uint8_t cc, uint8_t value, SynthPara
         audioEngine.lpFiltre[i].octaveControl(synth.lpfOctaveControl);
       }
       break;
+    case 55: // FMwavetable
+      synth.FMwavetable = value;
+      for (int i = 0; i < NUM_TOUCH_PADS; i++) {
+        audioEngine.polyModFM[i].arbitraryWaveform(waveTables[synth.FMwavetable], 170);
+      }
+      break;
+    case 56:
+      synth.wavetable = value;
+      for (int i = 0; i < NUM_TOUCH_PADS; i++) {
+        audioEngine.polyWave[i].arbitraryWaveform(waveTables[synth.wavetable], 170);
+      }
+      break;
     default:
       handleCommonEffects(cc, value, fx);
       break;
@@ -988,19 +1020,21 @@ void SoundManager::handleCommonEffects(uint8_t cc, uint8_t value, EffectsParams&
     break;
     case 40: // reverb roomSize
       fx.reverbRoomSize = normValue;
-      audioEngine.polyReverb.roomsize(fx.reverbRoomSize);
+      audioEngine.polyReverb.size(fx.reverbRoomSize);
     break;
     case 41: // reverb damping
       fx.reverbDamping = normValue;
-      audioEngine.polyReverb.damping(fx.reverbDamping);
+      audioEngine.polyReverb.diffusion(fx.reverbDamping);
     break;
     case 42: // reverb filter frequency
       fx.filterFreq = normValue;
-      audioEngine.filtre.frequency(fx.filterFreq);
+      //audioEngine.filtre.frequency(fx.filterFreq);
+      audioEngine.polyReverb.lowpass(fx.filterFreq);
     break;
     case 43: // reverb filter resonance
       fx.filterResonance = normValue;
-      audioEngine.filtre.resonance(fx.filterResonance);
+      //audioEngine.filtre.resonance(fx.filterResonance);
+      audioEngine.polyReverb.hipass(fx.filterResonance);
     break;
     case 44: // chorus voices
       fx.nChorus = value;
@@ -1024,7 +1058,7 @@ void SoundManager::handleCommonEffects(uint8_t cc, uint8_t value, EffectsParams&
     break;
     case 80: // noiseAmplitude
       fx.noiseAmplitude = normValue;
-      audioEngine.pinkNoise.amplitude(fx.noiseAmplitude);
+      audioEngine.whiteNoise.amplitude(fx.noiseAmplitude);
     break;
     case 81: //noiseCutoff
       fx.noiseCutoff = normValue;
@@ -1062,7 +1096,7 @@ void SoundManager::handleCommonEffects(uint8_t cc, uint8_t value, EffectsParams&
       break;
     case 88: // noiseFilterType
       fx.noiseFilterType = value;
-      setNoiseFilterType(fx.noiseFilterType);
+      setNoiseFilter(fx.noiseFilterType, ui_getNoise());
       break;
     case 89: // noiseOctaveControl
       fx.noiseOctaveControl = normValue;
@@ -1112,7 +1146,19 @@ void SoundManager::setPolyEnv(int attack, int decay, float sustain, int release)
     audioEngine.polyEnv[i].decay(decay);
     audioEngine.polyEnv[i].sustain(sustain);
     audioEngine.polyEnv[i].release(release);
+    audioEngine.polyEnv2[i].attack(attack);
+    audioEngine.polyEnv2[i].decay(decay);
+    audioEngine.polyEnv2[i].sustain(sustain);
+    audioEngine.polyEnv2[i].release(release);
+    audioEngine.polyEnv3[i].attack(attack);
+    audioEngine.polyEnv3[i].decay(decay);
+    audioEngine.polyEnv3[i].sustain(sustain);
+    audioEngine.polyEnv3[i].release(release);
   }
+  audioEngine.moogEnv.attack(attack);
+  audioEngine.moogEnv.decay(decay);
+  audioEngine.moogEnv.sustain(sustain);
+  audioEngine.moogEnv.release(release);
 }
 
 void SoundManager::soundDuration(uint16_t durationMS) {
@@ -1189,7 +1235,6 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
     float releaseMod3 = rel3 * (1.0f + pression * 0.4f);
     
     
-
     switch(presetBank[currentSoundMode].sound.type) {
       case SYNTH:
       {
@@ -1198,8 +1243,6 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
         audioEngine.polyWave[voiceIndex].amplitude(presetBank[currentSoundMode].sound.synth.amplitude * pression);  // amplitude max pour l’enveloppe
         if (!arpegioMode) {
         // Modulation de l’enveloppe par pression/vélocité
-        
-
         DEBUG_VAR_SOUND("Effective sustain: ", sustain);
         audioEngine.polyEnv[voiceIndex].attack(att * (1.0f - normVelocite * 0.8f));   // vélocité rapide = attaque courte
         audioEngine.polyEnv[voiceIndex].decay(dec * (1.0f - pression * 0.3f));  // pression forte = decay court
@@ -1213,6 +1256,7 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
         audioEngine.polyEnv3[voiceIndex].decay(dec3 * (1.0f - pression * 0.3f));  // pression forte = decay court
         audioEngine.polyEnv3[voiceIndex].sustain(sustainMod);         // pression forte = sustain élevé
         audioEngine.polyEnv3[voiceIndex].release(releaseMod3);
+        setLfoEnv(att * (1.0f - normVelocite * 0.8f), dec * (1.0f - pression * 0.3f), sustainMod, releaseMod);
         }
         audioEngine.polyEnv[voiceIndex].noteOn();
         audioEngine.polyEnv2[voiceIndex].noteOn();
@@ -1263,6 +1307,7 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
       break;
     }
   if (presetBank[currentSoundMode].effects.noiseAmplitude > 0.0f) {
+    audioEngine.whiteNoise.amplitude(presetBank[currentSoundMode].effects.noiseAmplitude);
     audioEngine.noiseEnv.attack(noiseAtt - velocite * 0.5);
     audioEngine.noiseEnv.decay(noiseDec * (1.0f - pression * 0.5));
     audioEngine.noiseEnv.sustain(noiseSust + (1.0f - noiseSust) * (pression * 0.3f));
@@ -1276,7 +1321,9 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
     audioEngine.moogEnv.sustain(moogSust + (1.0f - moogSust) * (pression * 0.3f));
     audioEngine.moogEnv.release(moogRel * (1.0f + pression * 0.4f));
     audioEngine.moogEnv.noteOn();
+    audioEngine.moogLfoEnv.noteOn();
   }
+  audioEngine.tremoloEnv.noteOn();
   if (MidiManager::getEnabled()) {
     playMidi(touchIndex, baseFreq, pression);
   }

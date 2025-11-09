@@ -461,16 +461,6 @@ void LedManager::flashRandomColors(uint8_t times, uint16_t delayMs) {
         lastFlash = millis();
     }
 }
-// void LedManager::flashRandomColors(uint8_t times, uint16_t delayMs) {
-//     for(int i=0; i<times; i++){
-//         for(int pad=0; pad<NUM_TOUCH_PADS; pad++){
-//             leds[pad] = CHSV(random8(), 255, 255);
-//         }
-//         show();
-//         delay(delayMs);
-//     }
-//     clear();
-// }
 
 void LedManager::sequentialWave(uint8_t repeats, uint16_t delayMs, CRGB color) {
     static uint8_t currentRepeat = 0;
@@ -513,28 +503,6 @@ void LedManager::sequentialWave(uint8_t repeats, uint16_t delayMs, CRGB color) {
         lastUpdate = millis();
     }
 }
-
-// void LedManager::sequentialWave(uint8_t repeats, uint16_t delayMs, CRGB color) {
-//     for(int r=0; r<repeats; r++){
-//         for(int pad=0; pad<NUM_TOUCH_PADS; pad++){
-//             leds[pad] = color;
-//             show();
-//             delay(delayMs);
-//             leds[pad] = CRGB::Black;
-//         }
-//     }
-// }
-
-// void LedManager::rainbowFade(uint16_t speed) {
-//     for(int b=0; b<=255; b+=5){
-//         for(int pad=0; pad<NUM_TOUCH_PADS; pad++){
-//             leds[pad] = CHSV((pad*16 + b) % 255, 255, b);
-//         }
-//         show();
-//         delay(speed);
-//     }
-// }
-
 
 
 void LedManager::rainbowFade(uint16_t speed) {
@@ -595,16 +563,6 @@ void LedManager::strobe(CRGB color, uint8_t times, uint16_t delayMs) {
     }
 }
 
-// void LedManager::strobe(CRGB color, uint8_t times, uint16_t delayMs){
-//     for(int i=0; i<times; i++){
-//         setAllLeds(color);
-//         show();
-//         delay(delayMs);
-//         clear();
-//         show();
-//         delay(delayMs);
-//     }
-// }
 
 void LedManager::rainbowPulse(uint16_t speed) {
     static int brightness = 0;
@@ -627,21 +585,10 @@ void LedManager::rainbowPulse(uint16_t speed) {
     brightness += 5;
     if (brightness > 255) {
         brightness = 0;
-        // Boucle infinie ou arrêt :
-        // clear();
-        // initialized = false;
+        
     }
 }
 
-// void LedManager::rainbowPulse(uint16_t speed){
-//     for(int b=0; b<=255; b+=5){
-//         for(int pad=0; pad<NUM_TOUCH_PADS; pad++){
-//             leds[pad] = CHSV((pad*10 + b) % 255, 255, sin8(b));
-//         }
-//         show();
-//         delay(speed);
-//     }
-// }
 
 void LedManager::selectFx(int fx) {
   if (fx < 0) fx = 0;
@@ -653,8 +600,7 @@ void LedManager::selectFx(int fx) {
     clear();
     show();
     lastFx = fx;
-    // Ici vous pourriez ajouter un système de reset des static
-    // mais c'est complexe en C++, donc on compte sur le clear()
+    
   }
   
   switch(fx) {
@@ -700,51 +646,6 @@ void LedManager::selectFx(int fx) {
   }
 }
 
-// void LedManager::selectFx(int fx) {
-//   if (fx < 0) fx = 0;
-//   if (fx > 11) fx = 11;
-//   switch(fx) {
-//     case 0:
-//       rainbow();
-//       break;
-//     case 1:
-//       breathe(CRGB::Blue);
-//       break;
-//     case 2:
-//       chenillard(CRGB::Green, 100);
-//       break;
-//     case 3:
-//       redGreenAlternance(500);
-//       break;
-//     case 4:
-//       rainbowCycle(100);
-//       break;
-//     case 5:
-//       chenillardRainbow(100);
-//       break;
-//     case 6:
-//       circleRainbow(200);
-//       break;
-//     case 7:
-//       rainbowFade(20);
-//       break;
-//     case 8:
-//       strobe(CRGB::Yellow, 10, 50);
-//       break;
-//     case 9:
-//       rainbowPulse(30);
-//       break;
-//     case 10:
-//       flashRandomColors(50, 50);
-//       break;
-//     case 11:
-//       sequentialWave(5, 30, CRGB::Green);
-//       break;
-//     default:
-//       clear();
-//       break;
-//   }
-// }
 
 void LedManager::victorySequence() {
     static int stage = 0;
@@ -796,12 +697,6 @@ void LedManager::victorySequence() {
     }
 }
 
-// void LedManager::victorySequence(){
-//     strobe(CRGB::Yellow, 10, 50);
-//     sequentialWave(5, 30, CRGB::Green);
-//     flashRandomColors(50, 50);
-//     rainbowPulse(30);
-// }
 
 
 #endif

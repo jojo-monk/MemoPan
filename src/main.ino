@@ -47,11 +47,12 @@ U8G2_SH1107_SEEED_128X128_F_4W_SW_SPI u8g2(
 enum GameState {
   STATE_MENU,
   STATE_INIT_GAME,
-  STATE_WAIT,          // Dans les menus
+  STATE_WAIT,          
   STATE_GAME,
-  STATE_SCALE_PLAY,          // Jeu Simon actif
-  STATE_PLAYER_LOOSE,  // joueur perdu
-  STATE_GAME_OVER     // Fin de jeu
+  STATE_SCALE_PLAY,          
+  STATE_PLAYER_LOOSE,  
+  STATE_GAME_OVER,
+  STATE_VICTORY     
   //STATE_TEST_LEDS,     // Test des LEDs
   //STATE_TEST_SONS      // Test des sons
 };
@@ -84,11 +85,12 @@ int playerInput = 0;
 bool gameInProgress = false;
 bool newHighScore = false;
 bool highScoreDisplayed = false;
-uint16_t pressionSequence = 512; // Valeur de pression pour la séquence (moyenne)
-uint8_t velocitySequence = 100;  // Vélocité pour la séquence
+float pressionSequence = 0.5; // Valeur de pression pour la séquence (moyenne)
+uint8_t velocitySequence = 80;  // Vélocité pour la séquence
 int gameTiming = 0;
 unsigned long looseTime = 0;
 unsigned long waitDisplayGameScreen = 0;
+unsigned long victoryStartTime = 0;
 uint8_t numPlayers = 0;
 uint8_t player = 0;
 uint8_t scores[NUM_MAX_PLAYER][2];
@@ -104,7 +106,7 @@ uint8_t gain = 8;
 uint8_t reverbMix = 7;
 uint8_t tremoloMix = 3;
 uint8_t chorusMix = 3;
-uint8_t moogMix = 3;
+uint8_t noiseMix = 3;
 uint8_t lastNote = 0;
 uint8_t lastScale = 0;
 uint16_t lastSoundType = 0;
@@ -142,6 +144,7 @@ void infosCpu() {
   DEBUG_VAR_MAIN("% max: ", AudioProcessorUsageMax());
   
   // Usage mémoire audio (nombre de blocs)
+  DEBUG_VAR_MAIN("Mémoire Audio F32: ", AudioMemoryUsage_F32());
   DEBUG_VAR_MAIN("Mémoire Audio: ", AudioMemoryUsage());
   DEBUG_VAR_MAIN("blocs max: ", AudioMemoryUsageMax());
 }
@@ -527,7 +530,8 @@ void startSimonGame() {
   checkDifficulty();
   gameTiming = checkSpeed();
   // Initialiser la séquence
-  randomSeed(analogRead(0));
+  uint32_t seed = *(uint32_t *)0x400C0000;  // Adresse du registre RNG matériel
+  randomSeed(seed);
   for (int i = 0; i < 100; i++) {
     gameSequence[i] = random(touchesMinMax[0], touchesMinMax[1]);
   }
@@ -640,7 +644,7 @@ void handleGameInput(int touchIndex) {
       looser();
     } else {
       for (uint8_t i = 0; i < ui_getNumJoueur(); i++) {
-        scores[i][0] = i;                // numéro du joueur
+        scores[i][0] = i + 1;                // numéro du joueur
         scores[i][1] = currentScore[i];  // score
       }
       gameOver();
@@ -718,24 +722,16 @@ void congratulation() {
 
 void gameWon() {
   DEBUG_INFO_MAIN("Game Won!");
-  currentState = STATE_GAME;
-
+  ledManager.selectFx(fxVictory);
   u8g2.firstPage();
   do {
     u8g2.setFont(u8g2_font_HelvetiPixelOutline_tr);
     u8g2.drawStr(30, 25, "BRAVO!");
     u8g2.setFont(u8g2_font_6x10_tf);
-    u8g2.drawStr(15, 40, "Vous avez gagne!");
+    u8g2.drawStr(20, 40, "Tu as gagne!");
   } while (u8g2.nextPage());
-
-  // Effet de victoire
-  unsigned long t0 = millis();
-  while (millis() - t0 < 1000) {
-    ledManager.selectFx(fxVictory);
-  }
-  ledManager.clear();
-  fxVictory++;
-  if (fxVictory > 11) fxVictory = 0;
+  victoryStartTime = millis();
+  currentState = STATE_VICTORY;
 }
 
 bool checkPlayer() {
@@ -771,13 +767,15 @@ void displayHighScore() {
   do {
     u8g2.setFont(u8g2_font_HelvetiPixelOutline_tr);
     u8g2.drawStr(30, 30, "BRAVO");
-    u8g2.drawStr(20, 50, "Nouveau Record");
+    u8g2.setFont(u8g2_font_sticker100complete_tr);
+    u8g2.drawStr(25, 50, "Nouveau");
+    u8g2.drawStr(30, 70, "Record");
     u8g2.setFont(u8g2_font_6x10_tf);
     String playerStr = "Joueur: " + String(scores[0][0]);
-    u8g2.drawStr(20, 70, playerStr.c_str());
+    u8g2.drawStr(30, 90, playerStr.c_str());
 
     String scoreStr = "Score: " + String(scores[0][1]);
-    u8g2.drawStr(20, 90, scoreStr.c_str());
+    u8g2.drawStr(30, 110, scoreStr.c_str());
   } while (u8g2.nextPage());
 }
 
@@ -1150,7 +1148,7 @@ void setup() {
   soundManager.setDryWetMix(ui_getReverbLevel());
   soundManager.setTremoloLevel(ui_getTremolo());
   soundManager.setChorusLevel(ui_getChorus());
-  soundManager.setMoogFilterLevel(ui_getMoogFilter());
+  soundManager.setNoiseLevel(ui_getNoise());
   arpeg.setMode(ui_getModeArp());
   arpeg.setStepInterval(ui_getStepInterval(), ui_getTempo());
   arpeg.setEnabled(ui_getArp());
@@ -1178,7 +1176,7 @@ void loop() {
   // Récupérer les valeurs
   unsigned long now = millis();
   // if (now - lastInfoCheck >= 2000) {
-  //   infosCpu();
+  // infosCpu();
   //   lastInfoCheck = now;
   // }
   
@@ -1194,10 +1192,6 @@ void loop() {
     
     lastBatteryCheck = now;
   }
-  //DEBUG_VAR_MAIN("Battery: ", voltage);
-  //DEBUG_VAR_MAIN(" % ", percentage);
-
-  //ui_setBatteryLevel(uint8_t(percentage));
   MidiManager::updateConnection();
   MidiManager::read();
   soundManager.readVolumePot();  
@@ -1220,15 +1214,6 @@ void loop() {
     soundManager.stopAllSounds();
   }
 
-
-
-  //unsigned long currentTime = millis();
-// if (millis() - lastCheck > 2000) {
-//   Serial.print("Mémoire audio max utilisée: ");
-//   Serial.print(AudioMemoryUsageMax());
-//   Serial.println("/50");
-//   lastCheck = millis();
-// }
   // Détecter les événements de l'encodeur
   detect_events();
   
@@ -1246,17 +1231,12 @@ void loop() {
           octaveShift = ui_getOctaveShift();
         }
         if (varChanged(ui_getNote(), lastNote) || varChanged(ui_getScale(), lastScale)) {
-          //DEBUG_VAR_MAIN("changement de gamme ", ui_getNote());
-          //DEBUG_VAR_MAIN(" / ", ui_getScale());
           soundManager.buildScale(ui_getNote(), ui_getScale());
         }
-        //Serial.print("son_id test");
-        //Serial.println(ui_getSoundType());
+        
         if (ui_getSoundType() != lastSoundType) {
           lastSoundType = ui_getSoundType();
-          //DEBUG_VAR_MAIN("changement de type de son ", lastSoundType);
           soundManager.setSoundMode(ui_getSoundType());
-          //soundManager.setPolyMode(true);
         }
         static int lastClavier = -1;  // garde en mémoire l'ancien mode
 
@@ -1295,8 +1275,8 @@ void loop() {
         if (varChanged(ui_getChorus(), chorusMix)) {
           soundManager.setChorusLevel(chorusMix);
         }
-        if (varChanged(ui_getMoogFilter(), moogMix)) {
-          soundManager.setChorusLevel(moogMix);
+        if (varChanged(ui_getNoise(), noiseMix)) {
+          soundManager.setNoiseLevel(noiseMix);
         }
       }
 
@@ -1400,6 +1380,14 @@ void loop() {
         // Attendre 2 secondes puis démarrer le jeu pour le joueur suivant
         if (millis() - looseTime > 2000) { // 2 secondes d'attente
         startSimonGame();
+        }
+      break;
+      case STATE_VICTORY:
+        if (millis() - victoryStartTime >= 3000) {
+          ledManager.clear();
+          fxVictory++;
+          if (fxVictory > 11) fxVictory = 0;
+          currentState = STATE_GAME;
         }
       break;
   }

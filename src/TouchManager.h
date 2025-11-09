@@ -124,7 +124,7 @@ bool TouchManager::begin() {
   
   // Test de lecture initial
   //delay(100);
-  uint16_t testRead = cap.touched();
+  //uint16_t testRead = cap.touched();
   DEBUG_INFO_TOUCH("MPR121 initial reading: 0x");
   DEBUG_INFO_TOUCH("MPR121 initial reading: 0x");
   DEBUG_INFO2_TOUCH(testRead, HEX);
