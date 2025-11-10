@@ -172,8 +172,10 @@ AudioEngine::AudioEngine() :
   M2SToPolyReverbR(mono2stereo, 1, polyReverb, 1),
   polyReverbToPolyAmpL(polyReverb, 0, polyAmp, 0),
   polyReverbToPolyAmpR(polyReverb, 1, polyAmp, 1),
-  polyAmpLToConvert(polyAmp, 0, convert_left, 0),
-  polyAmpRToConvert(polyAmp, 1, convert_right, 0),
+  polyAmpLToCompL(polyAmp, 0, comp, 0),
+  polyAmpRToCompR(polyAmp, 1, comp, 1),
+  compLToConvert(comp, 0, convert_left, 0),
+  compRToConvert(comp, 1, convert_right, 0),
 
   // ========== CONNEXIONS EFFETS ==========
   tremoloLfoToEnv(lfo, 0, tremoloEnv, 0),
@@ -185,7 +187,7 @@ AudioEngine::AudioEngine() :
   polyMixerGlobalToNoiseMix(polyMixerGlobal, 0, noiseMix, 0),
   fxMixerToF(fxMixer, 0, moogFilter, 0),
   noiseMixToFxMixer(noiseMix, 0, fxMixer, 0),
-
+  
   //========== CONNEXIONS NOISE GENERATOR ========
   whiteNoiseToNoiseEnv(whiteNoise, 0, noiseEnv, 0),
   noiseEnvToNoiseFilter(noiseEnv, 0, noiseFilter, 0),
@@ -236,7 +238,12 @@ AudioEngine::AudioEngine() :
     noiseCutOffEnv.decay(500);
     noiseCutOffEnv.sustain(0.0);
     noiseCutOffEnv.release(300);
-    
+    comp.setPreGain_dB(6.0f);          
+    comp.setAttack_sec(0.001f);        
+    comp.setRelease_sec(0.050f);       
+    comp.setThresh_dBFS(-6.0f);     
+    comp.setCompressionRatio(6.0f);       
+    comp.setPostGain_dB(6.0f);
 }
 
 bool AudioEngine::begin() {

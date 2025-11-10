@@ -19,6 +19,7 @@ public:
   AudioConvert_I16toF32         convertIn;
   AudioConvert_F32toI16         convert_left;
   AudioConvert_F32toI16         convert_right;
+  
 
   // Synthétiseurs polyphoniques
   AudioPlayMemory               polySample[NUM_TOUCH_PADS];
@@ -56,6 +57,7 @@ public:
   AudioFilterStateVariable      noiseFilter;
   AudioEffectEnvelope           tremoloEnv;
   AudioEffectEnvelope           moogLfoEnv;
+  AudioEffectCompressorStereo_F32 comp;
   
 
   
@@ -162,8 +164,10 @@ private:
     //AudioConnection moogMixToDryWet;
     AudioConnection_F32 polyReverbToPolyAmpL;
     AudioConnection_F32 polyReverbToPolyAmpR;
-    AudioConnection_F32 polyAmpLToConvert;
-    AudioConnection_F32 polyAmpRToConvert;
+    AudioConnection_F32 polyAmpLToCompL;
+    AudioConnection_F32 polyAmpRToCompR;
+    AudioConnection_F32 compLToConvert;
+    AudioConnection_F32 compRToConvert;
     AudioConnection fxMixerTomoogMix;
     AudioConnection fxMixerToBiquad;
     AudioConnection biquadToMoogFilter;

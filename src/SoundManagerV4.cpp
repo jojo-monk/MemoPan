@@ -709,7 +709,7 @@ void SoundManager::volume(uint8_t vol) {
   // Conversion en float normalisé 0.0 à 1.0
   volFloat = (float)vol / 10.0f;
   //amp1.gain(volFloat);
-  audioEngine.polyAmp.setGain(volFloat * 0.8);
+  audioEngine.polyAmp.setGain(volFloat);
   //audioEngine.polyAmpLeft.gain(volFloat * 0.9);
   //audioEngine.polyAmpRight.gain(volFloat * 0.9);
   //amp2.gain(volFloat);
@@ -721,7 +721,7 @@ void SoundManager::volume(uint8_t vol) {
 void SoundManager::readVolumePot() {
   int potValue = analogRead(VOL_POT);  // Lecture du pot (0–1023)
   float volume = (potValue / 1023.0);    // Normalisé 0.0 – 1.0
-  audioEngine.sgtl5000_1.volume(volume * 0.7);
+  audioEngine.sgtl5000_1.volume(volume * 0.9);
 }
 
 void SoundManager::testPoly() {
