@@ -138,7 +138,7 @@ void SysExHandler::parseStringParams(const byte* data, int& idx, StringParams& p
     params.moogAttack = decodeInt16(data, idx);
     params.moogDecay = decodeInt16(data, idx);
     params.moogSustain = decodeFloat(data, idx);
-    params.moogRelease = decodeInt16(data, idx);
+    params.moogRelease = decodeFloat(data, idx);
     params.octaveShift = data[idx++];
 }
 
@@ -149,7 +149,7 @@ void SysExHandler::parseDrumParams(const byte* data, int& idx, DrumParams& param
     params.moogAttack = decodeInt16(data, idx);
     params.moogDecay = decodeInt16(data, idx);
     params.moogSustain = decodeFloat(data, idx);
-    params.moogRelease = decodeInt16(data, idx);
+    params.moogRelease = decodeFloat(data, idx);
     params.octaveShift = data[idx++];
 }
 
@@ -157,7 +157,7 @@ void SysExHandler::parseSampleParams(const byte* data, int& idx, SampleParams& p
     params.moogAttack = decodeInt16(data, idx);
     params.moogDecay = decodeInt16(data, idx);
     params.moogSustain = decodeFloat(data, idx);
-    params.moogRelease = decodeInt16(data, idx);
+    params.moogRelease = decodeFloat(data, idx);
 }
 
 void SysExHandler::parseEffects(const byte* data, int& idx, EffectsParams& effects) {

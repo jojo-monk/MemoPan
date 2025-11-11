@@ -59,8 +59,8 @@ uint16_t difficult_name_list_get_cnt(void*) { return sizeof(difficult)/sizeof(*d
 const char* difficult_name_list_get_str(void*, uint16_t index) { return difficult[index]; }
 uint16_t son_name_list_get_cnt(void*) { 
   if (presetNamesLoaded) {
-      Serial.print("CNT = ");
-      Serial.println(NUM_PRESETS);
+      // Serial.print("CNT = ");
+      // Serial.println(NUM_PRESETS);
     return NUM_PRESETS;
   }
   return sizeof(son)/sizeof(*son);  // Toujours retourner le nombre correct

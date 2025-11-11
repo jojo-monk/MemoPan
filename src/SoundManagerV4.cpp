@@ -130,7 +130,7 @@ bool SoundManager::begin() {
     storage.begin();
     delay(200);
     //storage.printFSInfo();
-    //storage.format(); // pour test uniquement, à retirer plus tard
+    storage.format(); // pour test uniquement, à retirer plus tard
     //storage.printFSInfo();
     
     if (storage.getPresetCount() == 0) {
@@ -417,11 +417,11 @@ void SoundManager::applyPreset(Preset* preset) {
   if (currentSoundMode != preset->soundTypeIndex) {
     currentSoundMode = preset->soundTypeIndex;
   }
-  bool moogActive = false;
+  //bool moogActive = false;
   EffectsParams& fx = preset->effects;
-  if (fx.moogCutoff > 0.0f) {
-    moogActive = true;
-  }
+  // if (fx.moogCutoff > 0.0f) {
+  //   moogActive = true;
+  // }
   switch (preset->sound.type) {
     case SYNTH:
         {
@@ -455,12 +455,12 @@ void SoundManager::applyPreset(Preset* preset) {
             audioEngine.polyEnv3[i].sustain(p.sustain);
             audioEngine.polyEnv3[i].release(p.release * p.FMEnvAmount);
           }
-          if (moogActive) {
+          // if (moogActive) {
             audioEngine.moogEnv.attack(p.moogAttack);
             audioEngine.moogEnv.decay(p.moogDecay);
             audioEngine.moogEnv.sustain(p.moogSustain);
             audioEngine.moogEnv.release(p.moogRelease);
-          }
+          // }
             ui_setOctaveShift(p.octaveShift - 2);
           setLfoEnv(p.attack, p.decay, p.sustain, p.release);
         }
@@ -474,12 +474,12 @@ void SoundManager::applyPreset(Preset* preset) {
         audioEngine.polyDrum[i].secondMix(p.secondMix);
         audioEngine.polyDrum[i].pitchMod(p.pitchMod);
       }
-      if (moogActive) {
+      // if (moogActive) {
         audioEngine.moogEnv.attack(p.moogAttack);
         audioEngine.moogEnv.decay(p.moogDecay);
         audioEngine.moogEnv.sustain(p.moogSustain);
         audioEngine.moogEnv.release(p.moogRelease);
-      }
+      // }
         ui_setOctaveShift(p.octaveShift - 2);
         setLfoEnv(p.moogAttack, p.moogDecay, p.moogSustain, p.moogRelease);
     }
@@ -489,12 +489,12 @@ void SoundManager::applyPreset(Preset* preset) {
     {
       StringParams& p = preset->sound.string;
       //monoString.noteOn(60, m.string.velocity); // ex: C4
-      if (moogActive) {
+      // if (moogActive) {
         audioEngine.moogEnv.attack(p.moogAttack);
         audioEngine.moogEnv.decay(p.moogDecay);
         audioEngine.moogEnv.sustain(p.moogSustain);
         audioEngine.moogEnv.release(p.moogRelease);
-      }
+      // }
         ui_setOctaveShift(p.octaveShift - 2);
       setLfoEnv(p.moogAttack, p.moogDecay, p.moogSustain, p.moogRelease);
     }
@@ -502,12 +502,12 @@ void SoundManager::applyPreset(Preset* preset) {
     case SAMPLE:
     {
       SampleParams& p = preset->sound.sample;
-      if (moogActive) {
+      // if (moogActive) {
         audioEngine.moogEnv.attack(p.moogAttack);
         audioEngine.moogEnv.decay(p.moogDecay);
         audioEngine.moogEnv.sustain(p.moogSustain);
         audioEngine.moogEnv.release(p.moogRelease);
-      }
+      // }
         ui_setOctaveShift(0);
         setLfoEnv(p.moogAttack, p.moogDecay, p.moogSustain, p.moogRelease);
     }
@@ -519,16 +519,16 @@ void SoundManager::applyPreset(Preset* preset) {
     audioEngine.polyReverb.hipass(fx.filterResonance);
     //audioEngine.filtre.frequency(fx.filterFreq);
     //audioEngine.filtre.resonance(fx.filterResonance);
-    if (moogActive) {
+    // if (moogActive) {
     audioEngine.moogFilter.frequency(fx.moogCutoff);
     audioEngine.moogFilter.resonance(fx.moogResonance);
     audioEngine.moogFilter.octaveControl(fx.moogOctaveControl);
     audioEngine.moogLfo.begin(fx.moogLfoAmplitude, fx.moogLfoRate, fx.moogLfoWaveform);
-    }
-    else {
-      audioEngine.moogFilter.frequency(0);
-      audioEngine.moogLfo.begin(0.0, 0.0, WAVEFORM_SINE); // désactiver
-    }
+    // }
+    // else {
+      // audioEngine.moogFilter.frequency(0);
+      // audioEngine.moogLfo.begin(0.0, 0.0, WAVEFORM_SINE); // désactiver
+    // }
 
     if (preset->sound.type != SAMPLE) {
         audioEngine.chorus.voices(fx.nChorus);
@@ -1267,7 +1267,7 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
 
       case DRUM:
         audioEngine.polyDrum[voiceIndex].frequency(baseFreq * 0.25);
-        audioEngine.polyDrum[voiceIndex].secondMix(presetBank[currentSoundMode].sound.drum.secondMix * effectiveAmplitude); // exemple : moduler le mix par pression
+        audioEngine.polyDrum[voiceIndex].secondMix(presetBank[currentSoundMode].sound.drum.secondMix * pression); // exemple : moduler le mix par pression
         //audioEngine.moogEnv.attack(moogAtt - velocite * 0.5);
         //audioEngine.moogEnv.decay(moogDec * (1.0f - pression * 0.5));
         //audioEngine.moogEnv.sustain(sustain + (1.0f + pression * 0.3f));
@@ -1286,7 +1286,7 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
         {
         int nMixer = voiceIndex / 4;
         int nchannel = voiceIndex % 4;
-        audioEngine.sampleMixer[nMixer].gain(nchannel, sampleLevel * effectiveAmplitude);
+        audioEngine.sampleMixer[nMixer].gain(nchannel, sampleLevel * pression);
         if (!arpegioMode) {        
         audioEngine.polySample[voiceIndex].play(drumSamplesLong[touchIndex]);
         }
