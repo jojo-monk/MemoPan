@@ -125,6 +125,7 @@ float lastVoltage = 0;
 const float VOLTAGE_THRESHOLD = 0.05; // 50mV de différence
 unsigned long lastBatteryCheck = 0;
 unsigned long lastInfoCheck = 0;
+unsigned long lastAnalyse;
 const unsigned long BATTERY_CHECK_INTERVAL = 10000; // Vérifier batterie toutes les 10s
 
 uint8_t sauvegarde[15] = { highScore, sonId, gammeId, noteId, clavierId, vitesseId, 
@@ -1109,7 +1110,7 @@ void setup() {
   // Initialiser les autres composants
   DEBUG_INFO_MAIN("Initializing touch manager...");
   touchManager.begin();
-  touchManager.setPressureCurve(CURVE_LOGARITHMIC);
+  touchManager.setPressureCurve(CURVE_S_CURVE);
   delay(100);
 
   DEBUG_INFO_MAIN("Initializing LED manager...");
@@ -1179,7 +1180,11 @@ void loop() {
   // infosCpu();
   //   lastInfoCheck = now;
   // }
-  
+  // if (now - lastAnalyse >= 50) {
+  // soundManager.analyseAudio();
+  // lastAnalyse = now;
+  // }
+
   if (now - lastBatteryCheck >= BATTERY_CHECK_INTERVAL) {
     float voltage = battMonitor.getVoltage();
     float percentage = battMonitor.getPercentage();

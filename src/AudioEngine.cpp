@@ -198,6 +198,10 @@ AudioEngine::AudioEngine() :
   noiseDcToNoiseCutOffEnv(noiseDc, 0, noiseCutOffEnv, 0),
 
   // ========== SORTIE FINALE I2S ==========
+  finalPeakL(convert_left, 0, peakL, 0),
+  finalPeakR(convert_right, 0, peakR, 0),
+  finalRmsL(convert_left, 0, rmsL, 0),
+  finalRmsR(convert_right, 0, rmsR, 0),
   finalToI2S_L0(convert_left, 0, i2s1, 0),
   finalToI2S_R0(convert_right, 0, i2s1, 1)
 {
@@ -238,12 +242,12 @@ AudioEngine::AudioEngine() :
     noiseCutOffEnv.decay(500);
     noiseCutOffEnv.sustain(0.0);
     noiseCutOffEnv.release(300);
-    comp.setPreGain_dB(6.0f);          
+    comp.setPreGain_dB(9.0f);          
     comp.setAttack_sec(0.001f);        
     comp.setRelease_sec(0.050f);       
     comp.setThresh_dBFS(-6.0f);     
     comp.setCompressionRatio(6.0f);       
-    comp.setPostGain_dB(6.0f);
+    comp.setPostGain_dB(9.0f);
 }
 
 bool AudioEngine::begin() {
@@ -313,8 +317,8 @@ bool AudioEngine::begin() {
 }
 
 void AudioEngine::setupDefaultGains() {
-  const float sampleLevel = 0.7;
-  const float polyMixerGain = 0.7;
+  const float sampleLevel = 0.8;
+  const float polyMixerGain = 0.8;
   const float stringLevel = 1.0;
   const float drumLevel = 1.0;
 
@@ -354,10 +358,10 @@ void AudioEngine::setupDefaultGains() {
   soundMixer[8].gain(1, drumLevel);
 
   // ========== GLOBAL MIXER ==========
-  polyMixerGlobal.gain(0, 0.7);
-  polyMixerGlobal.gain(1, 0.7);
-  polyMixerGlobal.gain(2, 0.7);
-  polyMixerGlobal.gain(3, 0.7);
+  polyMixerGlobal.gain(0, 0.85);
+  polyMixerGlobal.gain(1, 0.85);
+  polyMixerGlobal.gain(2, 0.85);
+  polyMixerGlobal.gain(3, 0.85);
 
   amp2.gain(1.0);
 

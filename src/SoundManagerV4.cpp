@@ -130,7 +130,7 @@ bool SoundManager::begin() {
     storage.begin();
     delay(200);
     //storage.printFSInfo();
-    storage.format(); // pour test uniquement, à retirer plus tard
+    //storage.format(); // pour test uniquement, à retirer plus tard
     //storage.printFSInfo();
     
     if (storage.getPresetCount() == 0) {
@@ -224,6 +224,36 @@ void SoundManager::onPresetReceivedStatic(Preset* preset) {
     if(instance) {
         instance->applyPreset(preset);
     }
+}
+
+void SoundManager::analyseAudio() {
+  if (audioEngine.peakL.available() && audioEngine.peakR.available()) {
+    float peakLevelL = audioEngine.peakL.read();   // Valeur de 0.0 à 1.0
+    float peakLevelR = audioEngine.peakR.read();
+    float rmsLevelL = audioEngine.rmsL.read();
+    float rmsLevelR = audioEngine.rmsR.read();     // Valeur de 0.0 à 1.0
+    const int maxBar = 50; // largeur max de la barre
+    int barL = peakLevelL * maxBar;
+    int barR = peakLevelR * maxBar;
+
+    // Serial.print("L: ");
+    // for (int i = 0; i < barL; i++) Serial.print("█");
+    // for (int i = barL; i < maxBar; i++) Serial.print(" "); // espace pour compléter la barre
+
+    // Serial.print("  R: ");
+    // for (int i = 0; i < barR; i++) Serial.print("█");
+    // for (int i = barR; i < maxBar; i++) Serial.print(" ");
+
+
+    Serial.println();
+    Serial.printf("L: Peak %.3f RMS %.3f | R: Peak %.3f RMS %.3f\n",
+              peakLevelL, rmsLevelL, peakLevelR, rmsLevelR);
+
+    // Exemple : si le peak dépasse 1.0 → clipping
+    if (peakLevelL > 1.0f or peakLevelR > 1.0f) {
+      Serial.println("⚠️  Clipping detected!");
+    }
+  }
 }
 
 void SoundManager::unMute() {

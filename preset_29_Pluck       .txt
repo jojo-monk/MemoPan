@@ -1,0 +1,45 @@
+// Preset Pluck       
+{
+    .sound = {
+        .type = STRING,
+        .name = "Pluck       ",
+        .string = {
+            .velocity = 0.65,
+            .moogAttack = 20,
+            .moogDecay = 50,
+            .moogSustain = 0.7,
+            .moogRelease = 0.0,
+            .octaveShift = 2,
+        },
+    },
+
+    .effects = {
+        .reverbRoomSize = 0.1,
+        .reverbDamping = 0.18,
+        .filterFreq = 3835.88,
+        .filterResonance = 0.0,
+        .nChorus = 4,
+        .tremoloWaveform = 25,
+        .tremoloRate = 0.29,
+        .tremoloAmplitude = 0.0,
+        .moogLfoWaveform = 1,
+        .moogLfoRate = 0.0,
+        .moogLfoAmplitude = 0.0,
+        .noiseAmplitude = 0.0,
+        .noiseCutoff = 2647.06,
+        .noiseResonance = 0.53,
+        .noiseEnvAttack = 0,
+        .noiseEnvDecay = 0,
+        .noiseEnvSustain = 0.0,
+        .noiseEnvRelease = 323,
+        .noiseCutoffEnvAmount = 1.24,
+        .noiseFilterType = 0,
+        .noiseOctaveControl = 0,
+        .moogOctaveControl = 4,
+        .moogCutoff = 4264.71,
+        .moogResonance = 0.18,
+    },
+
+    .presetName = "Pluck       ",
+    .soundTypeIndex = 29
+}

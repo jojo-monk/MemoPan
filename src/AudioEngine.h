@@ -19,6 +19,10 @@ public:
   AudioConvert_I16toF32         convertIn;
   AudioConvert_F32toI16         convert_left;
   AudioConvert_F32toI16         convert_right;
+  AudioAnalyzePeak              peakL;
+  AudioAnalyzePeak              peakR;
+  AudioAnalyzeRMS               rmsL;
+  AudioAnalyzeRMS               rmsR;
   
 
   // Synthétiseurs polyphoniques
@@ -270,6 +274,10 @@ private:
     AudioConnection FxMixerTodrywet;
     AudioConnection polyMixerGlobalToNoiseMix;
     AudioConnection fxMixerToF;
+    AudioConnection finalPeakL;
+    AudioConnection finalPeakR;
+    AudioConnection finalRmsL;
+    AudioConnection finalRmsR;
     AudioConnection finalToI2S_L0;
     AudioConnection finalToI2S_R0;
 };

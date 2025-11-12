@@ -105,6 +105,7 @@ public:
     void setNoiseEffect(Preset* preset);
     void setNoiseFilter(uint8_t filterType, uint8_t noiseLevel);
     void setLfoEnv(int att, int dec, float sust, int rel);
+    void analyseAudio();
 };
 
 extern uint8_t activeMidiNotes[NUM_TOUCH_PADS];

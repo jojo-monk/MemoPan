@@ -57,4 +57,8 @@ Ce projet combine un **jeu de mémoire musicale** et un **handpan électronique 
 
 - **Environnement** : [PlatformIO](https://platformio.org/)  
 - **Langage** : C++  
-- **Carte cible** : `Teensy 4.0` 
+- **Carte cible** : `Teensy 4.0`
+
+## License
+This project is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
