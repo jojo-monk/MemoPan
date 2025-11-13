@@ -4,7 +4,10 @@
 </p>
 
 # MemoPan
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
+MemoPan is an open-source audio project developed by **Johann Moine (Gaston Music)**.  
+This repository contains both the hardware design and the firmware.
 
 <p align="center">
   <img src="MemoPan.jpeg" alt="photo MemoPan" width="400">
@@ -59,6 +62,10 @@ Ce projet combine un **jeu de mémoire musicale** et un **handpan électronique 
 - **Langage** : C++  
 - **Carte cible** : `Teensy 4.0`
 
-## License
-This project is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
+## License
+**MemoPan** © 2025 Johann Moine (Gaston Music)  
+Licensed under [CC BY-NC-SA 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+This license applies to both the hardware and software of the project.
+Commercial use is not permitted.
