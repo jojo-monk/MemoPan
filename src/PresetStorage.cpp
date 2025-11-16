@@ -2,8 +2,8 @@
 #include "PresetStorage.h"
 
 // Buffers statiques
-char PresetStorage::nameBuffer[32][13];
-char PresetStorage::fileBuffer[32][13];
+char PresetStorage::nameBuffer[NUM_PRESETS][13];
+char PresetStorage::fileBuffer[NUM_PRESETS][13];
 int PresetStorage::nameBufferIndex = 0;
 int PresetStorage::fileBufferIndex = 0;
 
@@ -89,6 +89,7 @@ void PresetStorage::convertToFlash(const Preset& preset, PresetFlash& flash) {
             flash.sound.sample.moogDecay = preset.sound.sample.moogDecay;
             flash.sound.sample.moogSustain = preset.sound.sample.moogSustain;
             flash.sound.sample.moogRelease = preset.sound.sample.moogRelease;
+            flash.sound.sample.drumKitId = preset.sound.sample.drumKitId;
             break;
     }
     
@@ -108,18 +109,18 @@ void PresetStorage::convertFromFlash(const PresetFlash& flash, Preset& preset, i
     preset.sound.type = flash.type;
     preset.soundTypeIndex = flash.soundTypeIndex;
     // Nom du preset - utiliser directement le slot comme index
-    if (slot >= 0 && slot < 32) {
+    if (slot >= 0 && slot < NUM_PRESETS) {
         strncpy(nameBuffer[slot], flash.presetName, 12);
         nameBuffer[slot][12] = '\0';
         preset.presetName = nameBuffer[slot];
     }
     // Nom du preset
-    int nameIdx = nameBufferIndex % 32;
+    int nameIdx = nameBufferIndex % NUM_PRESETS;
     strncpy(nameBuffer[nameIdx], flash.presetName, 13);
     nameBuffer[nameIdx][12] = '\0'; // Terminaison
     preset.presetName = nameBuffer[nameIdx];
     nameBufferIndex++;
-    if (nameBufferIndex >= 32) nameBufferIndex = 0; // Réinitialisation
+    if (nameBufferIndex >= NUM_PRESETS) nameBufferIndex = 0; // Réinitialisation
     
     // Le nom du son reste celui d'origine (pas sauvegardé)
     // preset.sound.name reste inchangé
@@ -147,6 +148,7 @@ void PresetStorage::convertFromFlash(const PresetFlash& flash, Preset& preset, i
             preset.sound.sample.moogDecay = flash.sound.sample.moogDecay;
             preset.sound.sample.moogSustain = flash.sound.sample.moogSustain;
             preset.sound.sample.moogRelease = flash.sound.sample.moogRelease;
+            preset.sound.sample.drumKitId = flash.sound.sample.drumKitId;
             break;
     }
     
@@ -246,7 +248,7 @@ bool PresetStorage::savePreset(int slot, const Preset& preset) {
     Serial.println("\n=== PresetStorage::savePreset ===");
     Serial.print("Slot: "); Serial.println(slot);
     
-    if (slot < 0 || slot >= 32) {
+    if (slot < 0 || slot >= NUM_PRESETS) {
         Serial.println("✗ Slot invalide");
         return false;
     }
@@ -290,7 +292,7 @@ bool PresetStorage::savePreset(int slot, const Preset& preset) {
 
 bool PresetStorage::presetExists(int slot) {
     if (!initialized) return false;
-    if (slot < 0 || slot >= 32) return false;
+    if (slot < 0 || slot >= NUM_PRESETS) return false;
     
     File file = myfs.open("/presets.dat", FILE_READ);
     if (!file) {
@@ -319,7 +321,7 @@ bool PresetStorage::presetExists(int slot) {
 
 bool PresetStorage::deletePreset(int slot) {
     if (!initialized) return false;
-    if (slot < 0 || slot >= 32) return false;
+    if (slot < 0 || slot >= NUM_PRESETS) return false;
     
     // Pour "supprimer" un preset dans un fichier unique,
     // on écrit un preset vide à sa position

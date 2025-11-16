@@ -18,6 +18,7 @@ private:
     Preset presetBank[NUM_PRESETS];
     Preset currentPreset;
     uint8_t currentSoundMode;
+    uint8_t currentDrumKit;
     unsigned long soundStartTime;
     SysExHandler* sysexHandler;
     PresetStorage storage;

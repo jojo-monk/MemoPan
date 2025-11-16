@@ -35,7 +35,7 @@
 #define NUM_LEDS 12
 #define NUM_TOUCH_PADS 12
 #define NUM_SOUND_MODES 32
-#define NUM_PRESETS 32
+#define NUM_PRESETS 34
 #define MAX_PRESET_NAME_LEN 13
 #define NUM_WAVEFORMS 18
 

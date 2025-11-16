@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <LittleFS.h>
 #include "SoundModes.h"
+#include "config.h"
 
 // Structure simplifiée compatible avec la sauvegarde (sans pointeurs)
 // Les noms de samples ne sont PAS sauvegardés (stockés dans la Teensy)
@@ -23,6 +24,7 @@ struct __attribute__((packed)) PresetFlash {
             // Pas de noms de fichiers - ils sont fixes dans la Teensy
             int moogAttack, moogDecay;
             float moogSustain, moogRelease;
+            uint8_t drumKitId;
 
         } sample;
     } sound;
@@ -38,7 +40,7 @@ struct __attribute__((packed)) PresetFlash {
 class PresetStorage {
 private:
     LittleFS_Program myfs;
-    static const int MAX_PRESETS = 32;  // Limité à 32 presets
+    static const int MAX_PRESETS = NUM_PRESETS;  // Limité à 34 presets
     bool initialized = false;
     
     // Convertir Preset vers PresetFlash (pour sauvegarde)
@@ -48,8 +50,8 @@ private:
     void convertFromFlash(const PresetFlash& flash, Preset& preset, int slot);
     
     // Buffers statiques pour les chaînes (éviter allocation dynamique)
-    static char nameBuffer[32][13];
-    static char fileBuffer[32][13];
+    static char nameBuffer[NUM_PRESETS][13];
+    static char fileBuffer[NUM_PRESETS][13];
     static int nameBufferIndex;
     static int fileBufferIndex;
     

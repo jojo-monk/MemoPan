@@ -1,5 +1,6 @@
 #include "SoundManagerV4.h"
-#include "audioSamples/DrumsKit1.h"
+//#include "audioSamples/DrumsKit1.h"
+#include "DrumKitData.h"
 #include "MapToMidi.h"
 #include "MidiCCMapper.h"
 #include "ui.h"
@@ -11,48 +12,48 @@ MidiManager midiManager;
 uint8_t activeMidiNotes[NUM_TOUCH_PADS] = {0};
 
 // ===== Définition des samples =====
-const unsigned int* drumSamplesLong[NUM_TOUCH_PADS] = { 
-    AudioSampleKick,
-    AudioSampleSnare,
-    AudioSampleOpenhh,
-    AudioSampleClosedhh,
-    AudioSampleCowbell,
-    AudioSampleLowcongaw,
-    AudioSampleRimshot,
-    AudioSampleTabla1,
-    AudioSampleTabla2,
-    AudioSampleTabla3,
-    AudioSampleTabla4,
-    AudioSampleTabla5
-};
-const unsigned int* drumSamples100ms[NUM_TOUCH_PADS] = {
-    AudioSampleKick40msw,
-    AudioSampleSnare40msw,
-    AudioSampleOpenhh100msw,
-    AudioSampleClosedhh40msw,
-    AudioSampleCowbell100msw,
-    AudioSampleLowconga100msw,
-    AudioSampleRimshot40msw,
-    AudioSampleTabla1100msw,
-    AudioSampleTabla2100msw,
-    AudioSampleTabla3100msw,
-    AudioSampleTabla4100msw,
-    AudioSampleTabla5100msw
-};
-const unsigned int* drumSamples40ms[NUM_TOUCH_PADS] = {
-    AudioSampleKick40msw,
-    AudioSampleSnare40msw,
-    AudioSampleOpenhh40msw,
-    AudioSampleClosedhh40msw,
-    AudioSampleCowbell40msw,
-    AudioSampleLowconga40msw,
-    AudioSampleRimshot40msw,
-    AudioSampleTabla140msw,
-    AudioSampleTabla240msw,
-    AudioSampleTabla340msw,
-    AudioSampleTabla440msw,
-    AudioSampleTabla540msw
-};
+// const unsigned int* drumSamplesLong[NUM_TOUCH_PADS] = { 
+//     AudioSampleKick,
+//     AudioSampleSnare,
+//     AudioSampleOpenhh,
+//     AudioSampleClosedhh,
+//     AudioSampleCowbell,
+//     AudioSampleLowcongaw,
+//     AudioSampleRimshot,
+//     AudioSampleTabla1,
+//     AudioSampleTabla2,
+//     AudioSampleTabla3,
+//     AudioSampleTabla4,
+//     AudioSampleTabla5
+// };
+// const unsigned int* drumSamples100ms[NUM_TOUCH_PADS] = {
+//     AudioSampleKick40msw,
+//     AudioSampleSnare40msw,
+//     AudioSampleOpenhh100msw,
+//     AudioSampleClosedhh40msw,
+//     AudioSampleCowbell100msw,
+//     AudioSampleLowconga100msw,
+//     AudioSampleRimshot40msw,
+//     AudioSampleTabla1100msw,
+//     AudioSampleTabla2100msw,
+//     AudioSampleTabla3100msw,
+//     AudioSampleTabla4100msw,
+//     AudioSampleTabla5100msw
+// };
+// const unsigned int* drumSamples40ms[NUM_TOUCH_PADS] = {
+//     AudioSampleKick40msw,
+//     AudioSampleSnare40msw,
+//     AudioSampleOpenhh40msw,
+//     AudioSampleClosedhh40msw,
+//     AudioSampleCowbell40msw,
+//     AudioSampleLowconga40msw,
+//     AudioSampleRimshot40msw,
+//     AudioSampleTabla140msw,
+//     AudioSampleTabla240msw,
+//     AudioSampleTabla340msw,
+//     AudioSampleTabla440msw,
+//     AudioSampleTabla540msw
+// };
 
 const int16_t* waveTables[NUM_WAVEFORMS] = {
   AKWF_aguitar_0001,
@@ -84,6 +85,7 @@ SoundManager::SoundManager()
       presetBank(),
       currentPreset(),
       currentSoundMode(),
+      currentDrumKit(),
       soundStartTime(0),
       sysexHandler(nullptr),
       storage(),
@@ -136,7 +138,7 @@ bool SoundManager::begin() {
     if (storage.getPresetCount() == 0) {
       for (int i=0;i<NUM_PRESETS;i++) presetBank[i] = DEFAULT_PRESETS[i];
         DEBUG_INFO_SOUND("Loading default presets into Flash storage...");
-      storage.saveAllPresets(presetBank, 32);
+      storage.saveAllPresets(presetBank, NUM_PRESETS);
     }
     else {
       DEBUG_INFO_SOUND("Loading presets from storage");
@@ -540,6 +542,7 @@ void SoundManager::applyPreset(Preset* preset) {
       // }
         ui_setOctaveShift(0);
         setLfoEnv(p.moogAttack, p.moogDecay, p.moogSustain, p.moogRelease);
+        currentDrumKit = p.drumKitId;
     }
       break;
   }
@@ -1297,19 +1300,14 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
 
       case DRUM:
         audioEngine.polyDrum[voiceIndex].frequency(baseFreq * 0.25);
-        audioEngine.polyDrum[voiceIndex].secondMix(presetBank[currentSoundMode].sound.drum.secondMix * pression); // exemple : moduler le mix par pression
-        //audioEngine.moogEnv.attack(moogAtt - velocite * 0.5);
-        //audioEngine.moogEnv.decay(moogDec * (1.0f - pression * 0.5));
-        //audioEngine.moogEnv.sustain(sustain + (1.0f + pression * 0.3f));
+        audioEngine.polyDrum[voiceIndex].secondMix(presetBank[currentSoundMode].sound.drum.secondMix * pression);
         audioEngine.polyDrum[voiceIndex].noteOn();
-        //audioEngine.moogEnv.noteOn();
       break;
 
       case STRING:
       {
         float stringVelocity = 0.5 + 0.5 * pression;
-        audioEngine.polyString[voiceIndex].noteOn(baseFreq * 0.5, stringVelocity); // vélocité module l’intensité
-        //audioEngine.moogEnv.noteOn();
+        audioEngine.polyString[voiceIndex].noteOn(baseFreq * 0.5, stringVelocity);
       }
       break;
       case SAMPLE:
@@ -1318,17 +1316,17 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
         int nchannel = voiceIndex % 4;
         audioEngine.sampleMixer[nMixer].gain(nchannel, sampleLevel * pression);
         if (!arpegioMode) {        
-        audioEngine.polySample[voiceIndex].play(drumSamplesLong[touchIndex]);
+        audioEngine.polySample[voiceIndex].play(drumKits[currentDrumKit].samplesLong[touchIndex]);
         }
         else {
           if (sampleDuration >= 250) {
-            audioEngine.polySample[voiceIndex].play(drumSamplesLong[touchIndex]);
+            audioEngine.polySample[voiceIndex].play(drumKits[currentDrumKit].samplesLong[touchIndex]);
           }
           else if (sampleDuration < 250 && sampleDuration >= 50) {
-            audioEngine.polySample[voiceIndex].play(drumSamples100ms[touchIndex]);
+            audioEngine.polySample[voiceIndex].play(drumKits[currentDrumKit].samplesMoyen[touchIndex]);
           }
           else if (sampleDuration < 50) {
-            audioEngine.polySample[voiceIndex].play(drumSamples40ms[touchIndex]);
+            audioEngine.polySample[voiceIndex].play(drumKits[currentDrumKit].samplesCourt[touchIndex]);
           }
 
         }

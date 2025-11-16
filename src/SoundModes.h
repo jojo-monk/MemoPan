@@ -60,6 +60,7 @@ struct __attribute__((packed)) SampleParams {
     int moogAttack, moogDecay;
     float moogSustain;
     float moogRelease;
+    uint8_t drumKitId;
 };
 
 // === Mode de son complet ===
