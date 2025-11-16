@@ -4,7 +4,6 @@
 #include "SoundModes.h"
 #include "config.h"
 
-//#define NUM_PRESETS 32
 
 // Déclaration (extern)
 extern const Preset DEFAULT_PRESETS[NUM_PRESETS];
