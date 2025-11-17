@@ -177,13 +177,13 @@ public:
                 case 2: // UP_DOWN
                     if (directionUp) {
                         currentIndex++;
-                        if (currentIndex >= noteCount) {
-                            currentIndex = noteCount - 2;
+                        if (currentIndex >= noteCount - 1) {
+                            //currentIndex = noteCount - 1;
                             directionUp = false;
                         }
                     } else {
-                        if (currentIndex == 0) {
-                            currentIndex = 1;
+                        if (currentIndex <= 0) {
+                            //currentIndex = 0;
                             directionUp = true;
                         } else {
                             currentIndex--;

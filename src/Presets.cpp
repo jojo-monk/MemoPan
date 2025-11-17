@@ -1984,8 +1984,8 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
     },
 
     .effects = {
-        .reverbRoomSize = 0.24,
-        .reverbDamping = 0.09,
+        .reverbRoomSize = 0.1,
+        .reverbDamping = 0.4,
         .filterFreq = 5303.53,
         .filterResonance = 2.72,
         .nChorus = 1,
@@ -2029,7 +2029,7 @@ const Preset DEFAULT_PRESETS[NUM_PRESETS] = {
 
     .effects = {
         .reverbRoomSize = 0.24,
-        .reverbDamping = 0.09,
+        .reverbDamping = 0.2,
         .filterFreq = 5303.53,
         .filterResonance = 2.72,
         .nChorus = 1,

@@ -317,8 +317,8 @@ bool AudioEngine::begin() {
 }
 
 void AudioEngine::setupDefaultGains() {
-  const float sampleLevel = 0.8;
-  const float polyMixerGain = 0.8;
+  const float sampleLevel = 1;
+  const float polyMixerGain = 0.7;
   const float stringLevel = 1.0;
   const float drumLevel = 1.0;
 
