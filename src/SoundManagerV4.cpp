@@ -697,6 +697,7 @@ void SoundManager::stopMidi() {
 }
 
 void SoundManager::stopOneNote(int touchIndex) {
+  activesNotes[touchIndex] = false;
   if (touchIndex < 0 || touchIndex >= NUM_TOUCH_PADS) return;
   audioEngine.polyEnv[touchIndex].noteOff();
   audioEngine.polyEnv2[touchIndex].noteOff();
@@ -719,6 +720,7 @@ void SoundManager::stopAllSounds() {
       audioEngine.polyString[i].noteOff(0.5);
       audioEngine.polyEnv2[i].noteOff();
       audioEngine.polyEnv3[i].noteOff();
+      activesNotes[i] = false;
     }
     audioEngine.moogEnv.noteOff();
     audioEngine.lfo.amplitude(0.0);
@@ -732,6 +734,12 @@ void SoundManager::stopAllSounds() {
     isPlaying = false;
 }
 
+
+uint8_t SoundManager::getNumActiveVoices() {
+    uint8_t count = 0;
+    for(int i=0; i<NUM_TOUCH_PADS; i++) if(activesNotes[i]) count++;
+    return count;
+}
 
 const char* SoundManager::getSoundModeName() const {
   return presetBank[currentSoundMode].sound.name;
@@ -1215,6 +1223,10 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
     if (touchIndex < 0 || touchIndex >= NUM_TOUCH_PADS) return;
     DEBUG_VAR_SOUND("Playing touch index: ", touchIndex);
     //const SoundMode& sm = presetBank[currentSoundMode];
+    activesNotes[touchIndex] = true;
+    int activeVoices = getNumActiveVoices();
+    if (activeVoices == 0) activeVoices = 1; // éviter division par zéro
+    float autolevelFactor = 1.0 / sqrt(activeVoices);
     float baseFreq = getNote(touchIndex);
     if (octaveShift != 0) {
       baseFreq *= pow(2.0, octaveShift);
@@ -1273,7 +1285,8 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
       {
         audioEngine.polyWave[voiceIndex].frequency(baseFreq);
         audioEngine.polyModFM[voiceIndex].frequency(baseFreq * presetBank[currentSoundMode].sound.synth.ratioFm);
-        audioEngine.polyWave[voiceIndex].amplitude(presetBank[currentSoundMode].sound.synth.amplitude * pression);  // amplitude max pour l’enveloppe
+        audioEngine.polyWave[voiceIndex].amplitude(presetBank[currentSoundMode].sound.synth.amplitude * 
+          pression * autolevelFactor);  // amplitude max pour l’enveloppe
         if (!arpegioMode) {
         // Modulation de l’enveloppe par pression/vélocité
         DEBUG_VAR_SOUND("Effective sustain: ", sustain);
@@ -1306,7 +1319,7 @@ void SoundManager::playTouchSound(int touchIndex, float pression, uint8_t veloci
 
       case STRING:
       {
-        float stringVelocity = 0.5 + 0.5 * pression;
+        float stringVelocity = 0.5 + 0.5 * pression * autolevelFactor;
         audioEngine.polyString[voiceIndex].noteOn(baseFreq * 0.5, stringVelocity);
       }
       break;

@@ -50,6 +50,7 @@ private:
     uint8_t currentChorusLevel = 0;
     uint8_t currentTremoloLevel = 0;
     uint8_t noiseDefault = 5;
+    bool activesNotes[NUM_TOUCH_PADS];
 
 
     static constexpr float MONO_GAIN = 0.5f;
@@ -107,6 +108,7 @@ public:
     void setNoiseFilter(uint8_t filterType, uint8_t noiseLevel);
     void setLfoEnv(int att, int dec, float sust, int rel);
     void analyseAudio();
+    uint8_t getNumActiveVoices();
 };
 
 extern uint8_t activeMidiNotes[NUM_TOUCH_PADS];

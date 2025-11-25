@@ -318,9 +318,9 @@ bool AudioEngine::begin() {
 
 void AudioEngine::setupDefaultGains() {
   const float sampleLevel = 1;
-  const float polyMixerGain = 0.7;
-  const float stringLevel = 1.0;
-  const float drumLevel = 1.0;
+  const float polyMixerGain = 0.6;
+  const float stringLevel = 0.8;
+  const float drumLevel = 0.8;
 
   // ========== SAMPLE MIXERS ==========
   for (int i = 0; i < 3; i++) {
@@ -358,15 +358,15 @@ void AudioEngine::setupDefaultGains() {
   soundMixer[8].gain(1, drumLevel);
 
   // ========== GLOBAL MIXER ==========
-  polyMixerGlobal.gain(0, 0.85);
-  polyMixerGlobal.gain(1, 0.85);
-  polyMixerGlobal.gain(2, 0.85);
-  polyMixerGlobal.gain(3, 0.85);
+  polyMixerGlobal.gain(0, 0.7);
+  polyMixerGlobal.gain(1, 0.7);
+  polyMixerGlobal.gain(2, 0.7);
+  polyMixerGlobal.gain(3, 0.7);
 
   amp2.gain(1.0);
 
   // ========== EFFECTS MIXER ==========
-  fxMixer.gain(0, 0.7);  // Signal direct
+  fxMixer.gain(0, 0.6);  // Signal direct
   fxMixer.gain(1, 0.2);  // Tremolo
   fxMixer.gain(2, 0);    // Chorus (off par défaut)
   fxMixer.gain(3, 0.7);  // Samples

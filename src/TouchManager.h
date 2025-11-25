@@ -362,6 +362,17 @@ float TouchManager::getNormalizedPressure(int touchIndex) {
   return applyCurve(normalized);
 }
 
+// uint8_t TouchManager::getNumTouchedPads() {
+//     uint8_t count = 0;
+//     for (int i = 0; i < NUM_TOUCH_PADS; i++) {
+//         if (touchStates[i] && padEnabled[i]) { // seulement les pads activés
+//             count++;
+//         }
+//     }
+//     return count;
+// }
+
+
 
 
 #endif

@@ -1232,9 +1232,6 @@ void loop() {
       touchManager.setDifficulty(DIFF_HARD); // réactiver toutes les touches
       //DÉSACTIVER le touch sauf sur la page synth
       if (ui_getCurrentFormId() == 12) {  // Page synth
-        if (ui_getOctaveShift() != octaveShift) {
-          octaveShift = ui_getOctaveShift();
-        }
         if (varChanged(ui_getNote(), lastNote) || varChanged(ui_getScale(), lastScale)) {
           soundManager.buildScale(ui_getNote(), ui_getScale());
         }
@@ -1242,6 +1239,10 @@ void loop() {
         if (ui_getSoundType() != lastSoundType) {
           lastSoundType = ui_getSoundType();
           soundManager.setSoundMode(ui_getSoundType());
+          ui_draw();
+        }
+        if (ui_getOctaveShift() != octaveShift) {
+          octaveShift = ui_getOctaveShift();
         }
         static int lastClavier = -1;  // garde en mémoire l'ancien mode
 
